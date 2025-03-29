@@ -1,6 +1,6 @@
-import { db } from "@/app/(db)/db";
-import { accounts, sessions, users } from "@/app/(db)/schema/users";
-import { env } from "@/app/(env)/server";
+import { db } from "@/db/db";
+import { accounts, sessions, users } from "@/db/schema/users";
+import { env } from "@/env/server";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import NextAuth, { type NextAuthOptions } from "next-auth";
 import GithubProvider from "next-auth/providers/github";

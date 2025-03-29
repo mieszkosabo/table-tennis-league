@@ -34,7 +34,7 @@ const eslintConfig = [
             // It's recommended to resolve path alias directories as
             // relative paths will be resolved relative to cwd. This
             // may cause unexpected behavior in monorepo setups
-            "@": resolve(import.meta.dirname, "./"),
+            "@": resolve(import.meta.dirname, "./src"),
           },
         },
       ],

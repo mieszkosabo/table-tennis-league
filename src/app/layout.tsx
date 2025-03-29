@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import "@app/globals.css";
+import "@/app/globals.css";
 
 export const metadata: Metadata = {
-  title: "Vercel + Neon",
-  description: "Use Neon with Vercel",
+  title: "Table Tennis League",
+  description: "Table Tennis League",
 };
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body>{children}</body>
     </html>
   );
 }
