@@ -1,9 +1,8 @@
 import type { NextConfig } from "next";
 
 // import env just to ensure it's type-checked
-
-import "./env/server";
-import "./env/client";
+import "@/app/(env)/server";
+import "@/app/(env)/client";
 
 const nextConfig: NextConfig = {
   /* config options here */

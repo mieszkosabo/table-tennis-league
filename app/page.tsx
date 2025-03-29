@@ -1,5 +1,5 @@
-import { auth } from "./api/auth/auth";
-import { SignInButton } from "./sign-in-button";
+import { auth } from "@/app/api/auth/auth";
+import { SignInButton } from "@/app/sign-in-button";
 
 export default async function Home() {
   console.log(await auth());

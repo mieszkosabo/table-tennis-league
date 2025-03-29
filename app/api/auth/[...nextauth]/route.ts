@@ -1,6 +1,6 @@
 import { db } from "@/app/(db)/db";
 import { accounts, sessions, users } from "@/app/(db)/schema/users";
-import { env } from "@/env/server";
+import { env } from "@/app/(env)/server";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import NextAuth, { type NextAuthOptions } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
@@ -19,6 +19,6 @@ export const authOptions = {
   ],
 } satisfies NextAuthOptions;
 
-const handler = NextAuth(authOptions);
+const handler = NextAuth(authOptions) as unknown;
 
 export { handler as GET, handler as POST };

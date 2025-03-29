@@ -41,16 +41,15 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 ## setup
 
-- [ ] setup drizzle ORM
-- [ ] setup NextAuth with Google OAuth
+- [x] setup drizzle ORM
+- [x] setup NextAuth with Github OAuth
 - [ ] setup shadcn/ui
-- [ ] eslint absolute paths rule
-- [ ] eslint typescript rules
+- [x] eslint absolute paths rule
+- [x] eslint typescript rules
 - [x] formatting with Biome
 
 ## project work
 
-- [ ] For now logging in is only allowed with a google account that's part of some domain like name@mycorp.com
 - [ ] models
   - [ ] User
   - [ ] League
