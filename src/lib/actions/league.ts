@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db/db";
-import { leagues, playersToLeagues } from "@/db/schema";
+import { leagues, playerStats, playersToLeagues } from "@/db/schema";
 import { generateJoinCode } from "@/lib/utils";
 
 import { authActionClient } from "@/lib/actions/safe-action";
@@ -27,14 +27,23 @@ export const createLeague = authActionClient
         })
         .returning({
           id: leagues.id,
+          startingElo: leagues.startingElo,
         });
 
       const leagueId = result[0].id;
 
-      await tx.insert(playersToLeagues).values({
-        playerId: user.id,
-        leagueId,
-      });
+      await Promise.all([
+        tx.insert(playersToLeagues).values({
+          playerId: user.id,
+          leagueId,
+        }),
+
+        tx.insert(playerStats).values({
+          playerId: user.id,
+          leagueId,
+          elo: result[0].startingElo,
+        }),
+      ]);
 
       return leagueId;
     });
@@ -52,16 +61,28 @@ export const joinLeague = authActionClient
     const leagueId = await db.transaction(async (tx) => {
       const league = await tx.query.leagues.findFirst({
         where: eq(leagues.joinCode, joinCode),
+        columns: {
+          id: true,
+          startingElo: true,
+        },
       });
 
       if (!league) {
         throw new Error("Invalid join code");
       }
 
-      await tx.insert(playersToLeagues).values({
-        playerId: user.id,
-        leagueId: league.id,
-      });
+      await Promise.all([
+        tx.insert(playersToLeagues).values({
+          playerId: user.id,
+          leagueId: league.id,
+        }),
+
+        tx.insert(playerStats).values({
+          playerId: user.id,
+          leagueId: league.id,
+          elo: league.startingElo,
+        }),
+      ]);
 
       return league.id;
     });

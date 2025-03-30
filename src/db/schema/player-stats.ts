@@ -3,8 +3,6 @@ import { users } from "@/db/schema/users";
 import { relations } from "drizzle-orm";
 import { integer, pgTable, text, uuid } from "drizzle-orm/pg-core";
 
-// TODO: default player stats should be created upon adding someone to a league
-
 export const playerStats = pgTable("player_stats", {
   id: uuid("id")
     .primaryKey()
@@ -12,10 +10,10 @@ export const playerStats = pgTable("player_stats", {
   playerId: text("player_id").references(() => users.id),
   leagueId: uuid("league_id").references(() => leagues.id),
 
-  wins: integer("wins"),
-  losses: integer("losses"),
-  ties: integer("ties"),
-  elo: integer("elo"),
+  wins: integer("wins").notNull().default(0),
+  losses: integer("losses").notNull().default(0),
+  ties: integer("ties").notNull().default(0),
+  elo: integer("elo").notNull(),
 });
 
 export const playerStatsRelations = relations(playerStats, ({ one }) => ({

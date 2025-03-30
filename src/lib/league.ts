@@ -10,6 +10,7 @@ export const getUserLeagues = cache(async (userId: string) => {
       league: {
         columns: {
           id: true,
+          name: true,
         },
       },
     },
