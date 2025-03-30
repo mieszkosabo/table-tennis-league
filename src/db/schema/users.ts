@@ -1,3 +1,6 @@
+import { playersToLeagues } from "@/db/schema/leagues";
+import { playerStats } from "@/db/schema/player-stats";
+import { relations } from "drizzle-orm";
 import {
   boolean,
   integer,
@@ -16,6 +19,14 @@ export const users = pgTable("user", {
   emailVerified: timestamp("emailVerified", { mode: "date" }),
   image: text("image"),
 });
+
+export const usersRelations = relations(users, ({ many, one }) => ({
+  playersToLeagues: many(playersToLeagues),
+  playerToStats: one(playerStats, {
+    fields: [users.id],
+    references: [playerStats.playerId],
+  }),
+}));
 
 export const accounts = pgTable(
   "account",

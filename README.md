@@ -43,15 +43,30 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 - [x] setup drizzle ORM
 - [x] setup NextAuth with Github OAuth
-- [ ] setup shadcn/ui
+- [x] setup shadcn/ui
 - [x] eslint absolute paths rule
 - [x] eslint typescript rules
 - [x] formatting with Biome
+- [ ] "lock" more specific versions of dependencies
 
 ## project work
 
-- [ ] models
-  - [ ] User
-  - [ ] League
-  - [ ] Match
-  - [ ] Player
+- models
+  - [x] User
+  - [x] League
+  - [x] Match
+- [ ] fix all todos in the code
+- [ ] league page
+  - [ ] show league name
+  - [ ] show league description
+  - [ ] show players in league with their stats
+  - [ ] show matches in league
+- owner
+  - [ ] edit league (name, starting elo, description, etc)
+  - [ ] delete league
+  - [ ] remove player from league
+  - [ ] add match to league
+  - [ ] remove match from league
+  - [ ] transfer ownership
+- [ ] claim league ownership if owner is deleted
+- [ ] add matches

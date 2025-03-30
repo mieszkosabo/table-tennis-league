@@ -1,6 +1,12 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { type ClassValue, clsx } from "clsx";
+import { customAlphabet } from "nanoid";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
+
+export const generateJoinCode = customAlphabet(
+  "ABCDEFGHIJKLMNOPRQSTUVWXYZ1234567890",
+  8,
+);

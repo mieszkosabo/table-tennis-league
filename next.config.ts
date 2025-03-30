@@ -5,7 +5,9 @@ import "@/env/server";
 import "@/env/client";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    reactCompiler: true,
+  },
 };
 
 export default nextConfig;

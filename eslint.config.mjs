@@ -19,7 +19,7 @@ const eslintConfig = [
       "prettier",
       "plugin:@typescript-eslint/strict-type-checked",
     ],
-    plugins: ["path-alias"],
+    plugins: ["path-alias", "react-compiler"],
     parser: "@typescript-eslint/parser",
     parserOptions: {
       projectService: true,
@@ -38,6 +38,7 @@ const eslintConfig = [
           },
         },
       ],
+      "react-compiler/react-compiler": "error",
     },
   }),
 ];
