@@ -6,6 +6,7 @@ import { generateJoinCode } from "@/lib/utils";
 
 import { authActionClient } from "@/lib/actions/safe-action";
 import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 const schema = z.object({
@@ -48,6 +49,7 @@ export const createLeague = authActionClient
       return leagueId;
     });
 
+    revalidatePath(`/leagues/${leagueId}`);
     return { leagueId };
   });
 
@@ -86,6 +88,8 @@ export const joinLeague = authActionClient
 
       return league.id;
     });
+
+    revalidatePath(`/leagues/${leagueId}`);
 
     return { leagueId };
   });

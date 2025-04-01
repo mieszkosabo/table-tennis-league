@@ -48,6 +48,8 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 - [x] eslint typescript rules
 - [x] formatting with Biome
 - [ ] "lock" more specific versions of dependencies
+- [ ] setup CI/CD pipeline
+- [ ] setup for local development with docker
 
 ## project work
 
@@ -55,7 +57,6 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
   - [x] User
   - [x] League
   - [x] Match
-- [ ] fix all todos in the code
 - [ ] league page
   - [ ] show league name
   - [ ] show league description
@@ -70,3 +71,14 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
   - [ ] transfer ownership
 - [ ] claim league ownership if owner is deleted
 - [ ] add matches
+- [x] redirect to home page if user tries to open a league that doesn't exist or they don't have access to
+- [x] join league button in selector
+- [x] create league button in selector
+- [x] dark mode
+- [x] create a max-width container for the app content and center it
+- [ ] /join?joinCode=... page
+- [ ] Feedback link (env var)
+- [ ] account button popup
+  - [ ] avatar
+  - [ ] name
+  - [ ] logout

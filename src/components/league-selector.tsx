@@ -2,6 +2,8 @@
 
 import { Check, ChevronsUpDown } from "lucide-react";
 
+import { CreateLeagueButton } from "@/components/create-league-button";
+import { JoinLeagueButton } from "@/components/join-league-button";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -10,6 +12,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  CommandSeparator,
 } from "@/components/ui/command";
 import {
   Popover,
@@ -18,7 +21,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export interface LeagueSelectorProps {
   leagues: {
@@ -29,11 +32,21 @@ export interface LeagueSelectorProps {
 
 export const LeagueSelector = ({ leagues }: LeagueSelectorProps) => {
   const router = useRouter();
-  const { leagueId } = useParams();
+  const { leagueId: leagueIdParam } = useParams();
+  const leagueId = useMemo(
+    () =>
+      Array.isArray(leagueIdParam) ? leagueIdParam[0] : leagueIdParam ?? null,
+    [leagueIdParam]
+  );
   const [open, setOpen] = useState(false);
   const [selectedLeagueId, setSelectedLeagueId] = useState<string | null>(
-    Array.isArray(leagueId) ? leagueId[0] : leagueId ?? null
+    leagueId
   );
+
+  useEffect(() => {
+    setSelectedLeagueId(leagueId);
+    setOpen(false);
+  }, [leagueId]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -55,12 +68,20 @@ export const LeagueSelector = ({ leagues }: LeagueSelectorProps) => {
           <CommandInput placeholder="Search your leagues..." />
           <CommandList>
             <CommandEmpty>No league found.</CommandEmpty>
+
             <CommandGroup>
               {leagues.map((league) => (
                 <CommandItem
                   key={league.id}
-                  value={league.id}
-                  onSelect={(leagueId) => {
+                  value={league.name}
+                  onSelect={(leagueName) => {
+                    const leagueId = leagues.find(
+                      (league) => league.name === leagueName
+                    )?.id;
+                    if (!leagueId) {
+                      return;
+                    }
+
                     setSelectedLeagueId(leagueId);
                     setOpen(false);
                     router.push(`/leagues/${leagueId}`);
@@ -78,8 +99,29 @@ export const LeagueSelector = ({ leagues }: LeagueSelectorProps) => {
                 </CommandItem>
               ))}
             </CommandGroup>
+
+            <CommandSeparator />
+
+            <CommandItem>
+              <JoinLeagueButton
+                buttonProps={{
+                  variant: "ghost",
+                  className: "hover:bg-transparent w-full",
+                  size: "sm",
+                }}
+              />
+            </CommandItem>
+
+            <CommandItem>
+              <CreateLeagueButton
+                buttonProps={{
+                  variant: "ghost",
+                  className: "hover:bg-transparent w-full",
+                  size: "sm",
+                }}
+              />
+            </CommandItem>
           </CommandList>
-          {/* TODO: Add a button to create a new league or join an existing league. */}
         </Command>
       </PopoverContent>
     </Popover>

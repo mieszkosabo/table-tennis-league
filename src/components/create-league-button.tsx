@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -17,7 +17,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export const CreateLeagueButton = () => {
+export interface CreateLeagueButtonProps {
+  buttonProps?: ButtonProps;
+}
+
+export const CreateLeagueButton = ({
+  buttonProps,
+}: CreateLeagueButtonProps) => {
   const [leagueName, setLeagueName] = useState("");
   const [showError, setShowError] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -42,7 +48,9 @@ export const CreateLeagueButton = () => {
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost">Create new League</Button>
+        <Button variant="ghost" {...buttonProps}>
+          Create new League
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

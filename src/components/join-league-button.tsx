@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +22,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export const JoinLeagueButton = () => {
+export interface JoinLeagueButtonProps {
+  buttonProps?: ButtonProps;
+}
+
+export const JoinLeagueButton = ({ buttonProps }: JoinLeagueButtonProps) => {
   const [joinCode, setJoinCode] = useState("");
   const [showError, setShowError] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -47,7 +51,9 @@ export const JoinLeagueButton = () => {
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant="default">Join League</Button>
+        <Button variant="default" {...buttonProps}>
+          Join League
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

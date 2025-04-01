@@ -39,3 +39,14 @@ export const getLeague = cache(async (leagueId: string) => {
     },
   });
 });
+
+export const assertUserInLeague = (
+  userId: string,
+  leagueData: Awaited<ReturnType<typeof getLeague>>,
+) => {
+  if (!leagueData) {
+    return false;
+  }
+
+  return !!leagueData.playersToLeagues.find((p) => p.playerId === userId);
+};

@@ -9,5 +9,5 @@ export default async function LeaguesMatchesPage({
   await assertLoggedIn();
   const { leagueId } = await params;
 
-  return <LeagueTabsData value="ranking" leagueId={leagueId} />;
+  return <LeagueTabsData value="matches" leagueId={leagueId} />;
 }

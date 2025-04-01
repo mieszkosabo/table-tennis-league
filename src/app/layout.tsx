@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "@/app/globals.css";
+import { ThemeProvider } from "@/components/providers";
 import { TopBar } from "@/components/top-bar";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -14,13 +15,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <div className="min-h-screen flex flex-col">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           <TopBar />
-          {children}
-        </div>
-        <Toaster />
+          <div className="min-h-screen flex flex-col w-full items-center">
+            <div className="flex flex-col w-full max-w-screen-lg py-16 px-4">
+              {children}
+            </div>
+          </div>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
