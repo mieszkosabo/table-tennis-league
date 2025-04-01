@@ -18,8 +18,7 @@ async function getData(leagueId: string): Promise<RankingData[]> {
 
     return {
       playerName: p.player.name ?? "Unknown",
-      playerElo:
-        p.player.playerToStats.elo + (Math.floor(Math.random() * 11) + 5),
+      playerElo: p.player.playerToStats.elo,
       gamesPlayed: wins + losses,
       gamesWon: wins,
       gamesLost: losses,

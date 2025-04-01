@@ -57,11 +57,12 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
   - [x] User
   - [x] League
   - [x] Match
-- [ ] league page
-  - [ ] show league name
+- league page
+  - [x] show league name
   - [ ] show league description
-  - [ ] show players in league with their stats
+  - [x] show players in league with their stats
   - [ ] show matches in league
+  - [ ] pagination for matches and players
 - owner
   - [ ] edit league (name, starting elo, description, etc)
   - [ ] delete league
@@ -82,3 +83,9 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
   - [ ] avatar
   - [ ] name
   - [ ] logout
+- [ ] schedule a match with another player from player ranking via action
+  - above all matches there's a list of scheduled matches with dates of course
+  - if a match is overdue the date is red
+  - if a match is scheduled for today the date is green
+  - there's a button to input the result of the match
+  - if someone adds a new match with players that have a scheduled match (on the same day), the scheduled match is removed

@@ -36,14 +36,16 @@ export const columns: ColumnDef<RankingData>[] = [
               column.toggleSorting(column.getIsSorted() === "asc");
             }}
           >
-            Elo Rating
             <ArrowUpDown className="ml-2 h-4 w-4" />
+            Elo Rating
           </Button>
         </div>
       );
     },
     cell: ({ row }) => (
-      <div className="text-right font-medium">{row.original.playerElo}</div>
+      <div className="text-right font-medium pr-4">
+        {row.original.playerElo}
+      </div>
     ),
   },
   {
