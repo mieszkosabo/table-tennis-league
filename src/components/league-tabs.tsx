@@ -25,9 +25,8 @@ export const LeagueTabs = ({
       onValueChange={(value) => {
         router.push(`/leagues/${leagueId}/${value}`);
       }}
-      className="w-[400px]"
     >
-      <TabsList>
+      <TabsList className="mb-4">
         <TabsTrigger value="ranking">Ranking</TabsTrigger>
         <TabsTrigger value="matches">Matches</TabsTrigger>
       </TabsList>
