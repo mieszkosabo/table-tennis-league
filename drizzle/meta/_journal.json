@@ -29,6 +29,20 @@
       "when": 1743359498658,
       "tag": "0003_secret_domino",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1744035632017,
+      "tag": "0004_glossy_santa_claus",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1744041728527,
+      "tag": "0005_black_solo",
+      "breakpoints": true
     }
   ]
 }

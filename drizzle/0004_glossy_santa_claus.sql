@@ -1,0 +1,1 @@
+ALTER TABLE "league" ADD COLUMN "description" varchar(500) DEFAULT '';

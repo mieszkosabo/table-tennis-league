@@ -2,6 +2,12 @@
 
 ## Local Setup
 
+### Prerequisites
+
+- Node (I recommend https://volta.sh)
+- pnpm
+- Docker Desktop
+
 ### Installation
 
 Install the dependencies:
@@ -30,12 +36,16 @@ DATABASE_URL=<your-string-here>
 #### Start the development server
 
 ```bash
-npm run dev
+pnpm dev
+```
+
+### Generate migrations
+
+```bash
+npx drizzle-kit generate
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 # TODOS
 
@@ -49,7 +59,7 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 - [x] formatting with Biome
 - [ ] "lock" more specific versions of dependencies
 - [ ] setup CI/CD pipeline
-- [ ] setup for local development with docker
+- [x] setup for local development with docker
 
 ## project work
 
@@ -79,13 +89,16 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 - [x] create a max-width container for the app content and center it
 - [ ] /join?joinCode=... page
 - [ ] Feedback link (env var)
-- [ ] account button popup
-  - [ ] avatar
-  - [ ] name
-  - [ ] logout
+- [x] account button popup
+  - [x] avatar
+  - [x] name
+  - [x] logout
 - [ ] schedule a match with another player from player ranking via action
   - above all matches there's a list of scheduled matches with dates of course
   - if a match is overdue the date is red
   - if a match is scheduled for today the date is green
   - there's a button to input the result of the match
   - if someone adds a new match with players that have a scheduled match (on the same day), the scheduled match is removed
+- League creation
+  - [ ] starting elo in league creation (default to 1000)
+  - [ ] description (150 chars)

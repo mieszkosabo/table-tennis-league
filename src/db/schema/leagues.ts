@@ -1,3 +1,7 @@
+import {
+  CREATE_LEAGUE_DEFAULTS,
+  CREATE_LEAGUE_LIMITS,
+} from "@/app/features/create-league/consts";
 import { users } from "@/db/schema/users";
 import { relations } from "drizzle-orm";
 import {
@@ -9,6 +13,7 @@ import {
   timestamp,
   uniqueIndex,
   uuid,
+  varchar,
 } from "drizzle-orm/pg-core";
 
 export const leagues = pgTable(
@@ -24,7 +29,12 @@ export const leagues = pgTable(
       onDelete: "set null",
     }),
     joinCode: text("join_code").notNull(),
-    startingElo: integer("starting_elo").notNull().default(1000),
+    startingElo: integer("starting_elo")
+      .notNull()
+      .default(CREATE_LEAGUE_DEFAULTS.startingElo),
+    description: varchar("description", {
+      length: CREATE_LEAGUE_LIMITS.MAX_LEAGUE_DESCRIPTION_LENGTH,
+    }).default(CREATE_LEAGUE_DEFAULTS.description),
   },
   (table) => [uniqueIndex("join_code_idx").on(table.joinCode)],
 );

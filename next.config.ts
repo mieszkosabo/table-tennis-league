@@ -4,10 +4,6 @@ import type { NextConfig } from "next";
 import "@/env/server";
 import "@/env/client";
 
-const nextConfig: NextConfig = {
-  experimental: {
-    reactCompiler: true,
-  },
-};
+const nextConfig: NextConfig = {};
 
 export default nextConfig;

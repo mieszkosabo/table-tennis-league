@@ -1,6 +1,6 @@
 import { ModeToggle } from "@/components/color-theme-toggle";
 import { LeagueSelector } from "@/components/league-selector";
-import { SignOutButton } from "@/components/sign-out-button";
+import { ProfileButton } from "@/components/profile-button";
 import { assertLoggedIn } from "@/lib/auth";
 import { getUserLeagues } from "@/lib/league";
 
@@ -29,7 +29,7 @@ export const TopBar = async () => {
           </div>
           <div className="flex items-center space-x-4">
             <ModeToggle />
-            <SignOutButton />
+            <ProfileButton user={user} />
           </div>
         </div>
       </div>

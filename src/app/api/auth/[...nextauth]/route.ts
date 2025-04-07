@@ -19,10 +19,12 @@ export const authOptions = {
     strategy: process.env.NODE_ENV === "development" ? "jwt" : "database",
   },
   providers: [
-    GithubProvider({
-      clientId: env.GITHUB_ID,
-      clientSecret: env.GITHUB_SECRET,
-    }),
+    env.GITHUB_ID && env.GITHUB_SECRET
+      ? GithubProvider({
+          clientId: env.GITHUB_ID,
+          clientSecret: env.GITHUB_SECRET,
+        })
+      : null,
     process.env.NODE_ENV === "development"
       ? CredentialsProvider({
           name: "Dev login",

@@ -39,6 +39,7 @@ const eslintConfig = [
         },
       ],
       "react-compiler/react-compiler": "error",
+      "@typescript-eslint/no-misused-promises": "off",
     },
   }),
 ];

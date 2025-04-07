@@ -25,15 +25,12 @@ export const getLeague = cache(async (leagueId: string) => {
       name: true,
       joinCode: true,
       ownerId: true,
+      startingElo: true,
     },
     with: {
       playersToLeagues: {
-        with: {
-          player: {
-            with: {
-              playerToStats: true,
-            },
-          },
+        columns: {
+          playerId: true,
         },
       },
     },

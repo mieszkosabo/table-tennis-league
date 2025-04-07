@@ -3,22 +3,30 @@ import {
   type RankingData,
   columns,
 } from "@/components/ranking-data-table/columns";
-import { getLeague } from "@/lib/league";
+import { db } from "@/db/db";
+import { playerStats, users } from "@/db/schema";
+import { desc, eq } from "drizzle-orm";
 
 async function getData(leagueId: string): Promise<RankingData[]> {
-  const data = await getLeague(leagueId);
+  const data = await db
+    .select({
+      playerName: users.name,
+      elo: playerStats.elo,
+      wins: playerStats.wins,
+      losses: playerStats.losses,
+    })
+    .from(playerStats)
+    .where(eq(playerStats.leagueId, leagueId))
+    .leftJoin(users, eq(playerStats.playerId, users.id))
+    .orderBy(desc(playerStats.elo));
 
-  if (!data) {
-    return [];
-  }
-
-  return data.playersToLeagues.map((p) => {
-    const wins = p.player.playerToStats.wins;
-    const losses = p.player.playerToStats.losses;
+  return data.map((p) => {
+    const wins = p.wins;
+    const losses = p.losses;
 
     return {
-      playerName: p.player.name ?? "Unknown",
-      playerElo: p.player.playerToStats.elo,
+      playerName: p.playerName ?? "Unknown",
+      playerElo: p.elo,
       gamesPlayed: wins + losses,
       gamesWon: wins,
       gamesLost: losses,

@@ -4,18 +4,36 @@ import { Button, type ButtonProps } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { createLeague } from "@/lib/actions/league";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAction } from "next-safe-action/hooks";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import type { z } from "zod";
+
+import {
+  CREATE_LEAGUE_DEFAULTS,
+  CREATE_LEAGUE_LIMITS,
+} from "@/app/features/create-league/consts";
+import { createLeagueSchema } from "@/app/features/create-league/schema";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 export interface CreateLeagueButtonProps {
   buttonProps?: ButtonProps;
@@ -24,14 +42,11 @@ export interface CreateLeagueButtonProps {
 export const CreateLeagueButton = ({
   buttonProps,
 }: CreateLeagueButtonProps) => {
-  const [leagueName, setLeagueName] = useState("");
-  const [showError, setShowError] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const router = useRouter();
 
   const { execute, isPending } = useAction(createLeague, {
     onError: () => {
-      setLeagueName("");
       toast.error("Failed to create league. Please try again.");
     },
     onSuccess: ({ data }) => {
@@ -57,46 +72,105 @@ export const CreateLeagueButton = ({
           <DialogTitle>Create a new league</DialogTitle>
         </DialogHeader>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (leagueName === "") {
-              setShowError(true);
-              return;
-            }
-
-            execute({ name: leagueName });
+        <CreateLeagueForm
+          onSubmit={(values) => {
+            execute(values);
           }}
-        >
-          <div className="my-4">
-            <div className="flex flex-col gap-4">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                value={leagueName}
-                onChange={(e) => {
-                  setLeagueName(e.target.value);
-                  setShowError(false);
-                }}
-                className="col-span-3"
-              />
-            </div>
-          </div>
-
-          <DialogFooter>
-            <div className="flex flex-col items-end gap-2">
-              <Button disabled={isPending} className="w-fit" type="submit">
-                Create League
-              </Button>
-              {showError && (
-                <p className="text-red-500 text-sm">
-                  League name is required and cannot be empty.
-                </p>
-              )}
-            </div>
-          </DialogFooter>
-        </form>
+          isPending={isPending}
+        />
       </DialogContent>
     </Dialog>
   );
 };
+
+function CreateLeagueForm({
+  onSubmit,
+  isPending,
+}: {
+  onSubmit: (values: z.infer<typeof createLeagueSchema>) => void;
+  isPending?: boolean;
+}) {
+  const form = useForm<z.infer<typeof createLeagueSchema>>({
+    resolver: zodResolver(createLeagueSchema),
+    defaultValues: {
+      description: CREATE_LEAGUE_DEFAULTS.description,
+      startingElo: CREATE_LEAGUE_DEFAULTS.startingElo,
+    },
+  });
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="leagueName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>League name</FormLabel>
+              <FormControl>
+                <Input placeholder="My awesome league" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          disabled={isPending}
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>League description</FormLabel>
+              <FormControl>
+                <Textarea {...field} />
+              </FormControl>
+
+              <p
+                className={cn(
+                  "text-xs text-slate-500 text-right",
+                  (field.value?.length ?? 0) >
+                    CREATE_LEAGUE_LIMITS.MAX_LEAGUE_DESCRIPTION_LENGTH &&
+                    "text-red-500"
+                )}
+              >
+                {field.value?.length ?? 0}/
+                {CREATE_LEAGUE_LIMITS.MAX_LEAGUE_DESCRIPTION_LENGTH}
+              </p>
+
+              <FormDescription>
+                This description will be visible to all league members.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          disabled={isPending}
+          control={form.control}
+          name="startingElo"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Starting Elo</FormLabel>
+              <FormControl>
+                <Input type="number" {...field} />
+              </FormControl>
+              <FormDescription>
+                All new players will start with this Elo rating. This can be
+                changed later.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="flex justify-end">
+          <Button disabled={isPending} type="submit">
+            Submit
+          </Button>
+        </div>
+      </form>
+    </Form>
+  );
+}
