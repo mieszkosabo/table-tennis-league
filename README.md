@@ -69,7 +69,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
   - [x] Match
 - league page
   - [x] show league name
-  - [ ] show league description
+  - [x] show league description
   - [x] show players in league with their stats
   - [ ] show matches in league
   - [ ] pagination for matches and players
@@ -81,7 +81,9 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
   - [ ] remove match from league
   - [ ] transfer ownership
 - [ ] claim league ownership if owner is deleted
-- [ ] add matches
+- [x] add matches
+  - [ ] update checkpoint
+- [ ] edit matches
 - [x] redirect to home page if user tries to open a league that doesn't exist or they don't have access to
 - [x] join league button in selector
 - [x] create league button in selector
@@ -100,5 +102,11 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
   - there's a button to input the result of the match
   - if someone adds a new match with players that have a scheduled match (on the same day), the scheduled match is removed
 - League creation
-  - [ ] starting elo in league creation (default to 1000)
-  - [ ] description (150 chars)
+  - [x] starting elo in league creation (default to 1000)
+  - [x] description (150 chars)
+- [ ] Add all indexes based on queries
+- [ ] Show status emojis next to player names
+  - [ ] 🔥 if on winning streak
+  - [ ] 🥵 if on losing strea
+  - [ ] 😴 if haven't played in 2 weeks
+  - [ ] 💪 if broke someone's streak

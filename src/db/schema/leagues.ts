@@ -2,6 +2,7 @@ import {
   CREATE_LEAGUE_DEFAULTS,
   CREATE_LEAGUE_LIMITS,
 } from "@/app/features/create-league/consts";
+import { leagueCheckpoints } from "@/db/schema/matches";
 import { users } from "@/db/schema/users";
 import { relations } from "drizzle-orm";
 import {
@@ -45,6 +46,10 @@ export const leagueRelations = relations(leagues, ({ one, many }) => ({
     references: [users.id],
   }),
   playersToLeagues: many(playersToLeagues),
+  eloCheckpoint: one(leagueCheckpoints, {
+    fields: [leagues.id],
+    references: [leagueCheckpoints.leagueId],
+  }),
 }));
 
 export const playersToLeagues = pgTable(

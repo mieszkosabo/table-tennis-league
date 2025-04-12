@@ -43,6 +43,13 @@
       "when": 1744041728527,
       "tag": "0005_black_solo",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1744453658640,
+      "tag": "0006_silly_dagger",
+      "breakpoints": true
     }
   ]
 }

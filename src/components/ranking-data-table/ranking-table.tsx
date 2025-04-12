@@ -30,7 +30,7 @@ async function getData(leagueId: string): Promise<RankingData[]> {
       gamesPlayed: wins + losses,
       gamesWon: wins,
       gamesLost: losses,
-      winLossPercentage: losses === 0 ? 0 : (wins / losses) * 100,
+      winLossPercentage: losses === 0 ? 100 : (wins / (wins + losses)) * 100,
     };
   });
 }

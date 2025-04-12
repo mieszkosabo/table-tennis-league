@@ -1,8 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type React from "react";
 
@@ -11,6 +9,7 @@ export interface LeagueTabsProps {
   leagueId: string;
   rankingContent: React.ReactNode;
   matchesContent: React.ReactNode;
+  createMatchButton: React.ReactNode;
 }
 
 export const LeagueTabs = ({
@@ -18,6 +17,7 @@ export const LeagueTabs = ({
   leagueId,
   rankingContent,
   matchesContent,
+  createMatchButton,
 }: LeagueTabsProps) => {
   const router = useRouter();
 
@@ -34,10 +34,7 @@ export const LeagueTabs = ({
           <TabsTrigger value="matches">Matches</TabsTrigger>
         </TabsList>
 
-        <Button>
-          <PlusIcon />
-          Add match
-        </Button>
+        {createMatchButton}
       </div>
       <TabsContent value="ranking">{rankingContent}</TabsContent>
       <TabsContent value="matches">{matchesContent}</TabsContent>
