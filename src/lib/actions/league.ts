@@ -93,7 +93,5 @@ export const joinLeague = authActionClient
       return league.id;
     });
 
-    revalidatePath(`/leagues/${leagueId}`);
-
     return { leagueId };
   });

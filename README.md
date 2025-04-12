@@ -90,7 +90,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [x] create league button in selector
 - [x] dark mode
 - [x] create a max-width container for the app content and center it
-- [ ] /join?joinCode=... page
+- [x] /join?joinCode=... page
 - [x] Feedback link (env var)
   - [x] GitHub issues
 - [x] account button popup
