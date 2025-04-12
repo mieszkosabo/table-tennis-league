@@ -4,9 +4,12 @@ import { db } from "@/db/db";
 import { leagues, playerStats, playersToLeagues } from "@/db/schema";
 import { generateJoinCode } from "@/lib/utils";
 
-import { createLeagueSchema } from "@/app/features/create-league/schema";
+import {
+  createLeagueSchema,
+  editLeagueSchema,
+} from "@/app/features/create-league/schema";
 import { authActionClient } from "@/lib/actions/safe-action";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -48,6 +51,40 @@ export const createLeague = authActionClient
             elo: result[0].startingElo,
           }),
         ]);
+
+        return leagueId;
+      });
+
+      revalidatePath(`/leagues/${leagueId}`);
+      return { leagueId };
+    },
+  );
+
+export const editLeague = authActionClient
+  .schema(editLeagueSchema)
+  .action(
+    async ({
+      parsedInput: { leagueId, leagueName, description, startingElo },
+      ctx: { user },
+    }) => {
+      await db.transaction(async (tx) => {
+        const league = await tx.query.leagues.findFirst({
+          where: and(eq(leagues.id, leagueId), eq(leagues.ownerId, user.id)),
+        });
+
+        if (!league) {
+          throw new Error("League not found or you are not the owner");
+        }
+
+        await tx
+          .update(leagues)
+          .set({
+            name: leagueName,
+            description,
+            startingElo,
+            updatedAt: new Date(),
+          })
+          .where(eq(leagues.id, leagueId));
 
         return leagueId;
       });

@@ -17,16 +17,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  className?: string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  className,
 }: DataTableProps<TData, TValue>) {
   // This causes the table sorting, filtering etc to not work:
   // https://github.com/shadcn-ui/ui/issues/3905
@@ -47,7 +50,7 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="rounded-md border">
+    <div className={cn("rounded-md border", className)}>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (

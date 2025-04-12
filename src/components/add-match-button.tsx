@@ -47,12 +47,14 @@ export interface CreateMatchButtonProps {
   buttonProps?: ButtonProps;
   players: PlayersSelectorProps["players"];
   leagueId: string;
+  userId: string;
 }
 
-export const CreateMatchButton = ({
+export const AddMatchButton = ({
   buttonProps,
   players,
   leagueId,
+  userId,
 }: CreateMatchButtonProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -76,12 +78,20 @@ export const CreateMatchButton = ({
           Add match
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent
+        onInteractOutside={(e) => {
+          e.preventDefault();
+        }}
+        onEscapeKeyDown={(e) => {
+          e.preventDefault();
+        }}
+      >
         <DialogHeader>
           <DialogTitle>Add match</DialogTitle>
         </DialogHeader>
 
-        <CreateMatchForm
+        <AddMatchForm
+          userId={userId}
           onSubmit={(values) => {
             execute({ ...values, leagueId });
           }}
@@ -93,19 +103,22 @@ export const CreateMatchButton = ({
   );
 };
 
-function CreateMatchForm({
+function AddMatchForm({
   onSubmit,
   isPending,
   players,
+  userId,
 }: {
   onSubmit: (values: AddMatchFormSchema) => void;
   isPending?: boolean;
   players: PlayersSelectorProps["players"];
+  userId: string;
 }) {
   const form = useForm<AddMatchFormSchema>({
     resolver: zodResolver(addMatchFormSchema),
     defaultValues: {
       date: new Date(),
+      player1Id: userId,
     },
   });
 

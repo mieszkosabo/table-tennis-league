@@ -58,6 +58,8 @@ export const addMatch = authActionClient
 
       if (!rest.winner) {
         // if this is a scheduled match, we finish here
+        revalidatePath(`/leagues/${leagueId}/matches`);
+        revalidatePath(`/leagues/${leagueId}/ranking`);
         return;
       }
 

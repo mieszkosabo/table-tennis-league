@@ -16,3 +16,7 @@ export const createLeagueSchema = z.object({
     .max(CREATE_LEAGUE_LIMITS.MAX_LEAGUE_STARTING_ELO)
     .optional(),
 });
+
+export const editLeagueSchema = createLeagueSchema.extend({
+  leagueId: z.string().uuid(),
+});

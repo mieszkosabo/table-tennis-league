@@ -30,7 +30,10 @@ export const TopBar = async () => {
           </div>
           <div className="flex items-center space-x-4">
             {env.FEEDBACK_LINK && (
-              <a className="text-sm text-fuchsia-900" href={env.FEEDBACK_LINK}>
+              <a
+                className="text-sm text-fuchsia-900 dark:text-fuchsia-100"
+                href={env.FEEDBACK_LINK}
+              >
                 Send feedback
               </a>
             )}

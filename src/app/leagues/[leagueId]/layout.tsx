@@ -1,3 +1,4 @@
+import { EditLeagueButton } from "@/components/edit-league-button";
 import { InviteButton } from "@/components/ui/invite-button";
 import { HStack, VStack } from "@/components/ui/stack";
 import { assertLoggedIn } from "@/lib/auth";
@@ -17,6 +18,7 @@ export default async function LeaguePageLayout({
   if (!leagueData || !assertUserInLeague(user.id, leagueData)) {
     return redirect("/");
   }
+  const isUserAdmin = leagueData.ownerId === user.id;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -27,12 +29,15 @@ export default async function LeaguePageLayout({
               {leagueData.name}
             </h2>
 
-            <InviteButton joinCode={leagueData.joinCode} />
+            <HStack className="gap-2">
+              <InviteButton joinCode={leagueData.joinCode} />
+              {isUserAdmin && <EditLeagueButton leagueData={leagueData} />}
+            </HStack>
           </HStack>
 
-          <p className="text-slate-500 dark:text-slate-400">
+          <div className="text-slate-500 dark:text-slate-400 whitespace-pre max-h-32 overflow-hidden">
             {leagueData.description}
-          </p>
+          </div>
         </VStack>
 
         {children}

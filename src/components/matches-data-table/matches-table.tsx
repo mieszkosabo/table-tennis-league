@@ -3,6 +3,7 @@ import {
   type MatchesData,
   columns,
 } from "@/components/matches-data-table/columns";
+import { VStack } from "@/components/ui/stack";
 import { db } from "@/db/db";
 import { matches, users } from "@/db/schema";
 import { aliasedTable, desc, eq } from "drizzle-orm";
@@ -54,5 +55,32 @@ async function getData(leagueId: string): Promise<MatchesData[]> {
 export const MatchesDataTable = async ({ leagueId }: { leagueId: string }) => {
   const data = await getData(leagueId);
 
-  return <DataTable columns={columns} data={data} />;
+  const scheduledMatches = data.filter(
+    (match) => !match.player1.isWinner && !match.player2.isWinner
+  );
+  const pastMatches = data.filter(
+    (match) => match.player1.isWinner || match.player2.isWinner
+  );
+
+  return (
+    <VStack className="gap-16">
+      <VStack className="gap-4">
+        <h2 className="text-3xl font-bold text-slate-700 dark:text-slate-100">
+          Scheduled matches 🍿
+        </h2>
+        <DataTable
+          className="bg-slate-50 dark:bg-slate-950"
+          columns={columns}
+          data={scheduledMatches}
+        />
+      </VStack>
+
+      <VStack className="gap-4">
+        <h2 className="text-3xl font-bold text-slate-700 dark:text-slate-100">
+          Past matches
+        </h2>
+        <DataTable columns={columns} data={pastMatches} />
+      </VStack>
+    </VStack>
+  );
 };

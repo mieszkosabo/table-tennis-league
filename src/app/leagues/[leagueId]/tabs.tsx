@@ -1,7 +1,8 @@
-import { CreateMatchButton } from "@/components/create-match-button";
+import { AddMatchButton } from "@/components/add-match-button";
 import { LeagueMatchesContent } from "@/components/league-matches-content";
 import { LeagueRankingContent } from "@/components/league-ranking-content";
 import { LeagueTabs } from "@/components/league-tabs";
+import { assertLoggedIn } from "@/lib/auth";
 import { getLeague } from "@/lib/league";
 
 export async function LeagueTabsData({
@@ -11,6 +12,7 @@ export async function LeagueTabsData({
   leagueId: string;
   value: "ranking" | "matches";
 }) {
+  const { user } = await assertLoggedIn();
   const leagueData = await getLeague(leagueId);
 
   if (!leagueData) {
@@ -24,9 +26,10 @@ export async function LeagueTabsData({
       rankingContent={<LeagueRankingContent leagueId={leagueId} />}
       matchesContent={<LeagueMatchesContent leagueId={leagueId} />}
       createMatchButton={
-        <CreateMatchButton
+        <AddMatchButton
           players={leagueData.playersToLeagues.map((p) => p.player)}
           leagueId={leagueId}
+          userId={user.id}
         />
       }
     />
