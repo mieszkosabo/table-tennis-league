@@ -14,6 +14,7 @@ export const env = createEnv({
     NEXTAUTH_SECRET: z.string().min(1),
     GITHUB_ID: IS_DEV ? githubOAuthSchema.optional() : githubOAuthSchema,
     GITHUB_SECRET: IS_DEV ? githubOAuthSchema.optional() : githubOAuthSchema,
+    FEEDBACK_LINK: z.string().optional(),
   },
   experimental__runtimeEnv: process.env,
 });

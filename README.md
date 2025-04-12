@@ -91,8 +91,8 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [x] dark mode
 - [x] create a max-width container for the app content and center it
 - [ ] /join?joinCode=... page
-- [ ] Feedback link (env var)
-  - [ ] GitHub issues
+- [x] Feedback link (env var)
+  - [x] GitHub issues
 - [x] account button popup
   - [x] avatar
   - [x] name
@@ -109,6 +109,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [ ] Add all indexes based on queries
 - [ ] Show status emojis next to player names
   - [ ] 🔥 if on winning streak
-  - [ ] 🥵 if on losing strea
+  - [ ] 🥵 if on losing streak
   - [ ] 😴 if haven't played in 2 weeks
-  - [ ] 💪 if broke someone's streak
+  - [ ] 💪 if broke someone's winning streak
+- [ ] Handle case where two players have the same name

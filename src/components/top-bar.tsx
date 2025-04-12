@@ -1,6 +1,7 @@
 import { ModeToggle } from "@/components/color-theme-toggle";
 import { LeagueSelector } from "@/components/league-selector";
 import { ProfileButton } from "@/components/profile-button";
+import { env } from "@/env/server";
 import { assertLoggedIn } from "@/lib/auth";
 import { getUserLeagues } from "@/lib/league";
 
@@ -28,6 +29,11 @@ export const TopBar = async () => {
             )}
           </div>
           <div className="flex items-center space-x-4">
+            {env.FEEDBACK_LINK && (
+              <a className="text-sm text-fuchsia-900" href={env.FEEDBACK_LINK}>
+                Send feedback
+              </a>
+            )}
             <ModeToggle />
             <ProfileButton user={user} />
           </div>

@@ -167,7 +167,7 @@ function CreateLeagueForm({
 
         <div className="flex justify-end">
           <Button disabled={isPending} type="submit">
-            Submit
+            Create league
           </Button>
         </div>
       </form>
