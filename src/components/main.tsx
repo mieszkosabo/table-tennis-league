@@ -1,5 +1,6 @@
 import { CreateLeagueButton } from "@/components/create-league-button";
 import { JoinLeagueButton } from "@/components/join-league-button";
+import { HStack } from "@/components/ui/stack";
 import { assertLoggedIn } from "@/lib/auth";
 import { getUserLeagues } from "@/lib/league";
 import { redirect } from "next/navigation";
@@ -22,10 +23,10 @@ export const Main = async () => {
         <p className="text-slate-500 dark:text-slate-300">
           It looks like you haven&apos;t joined any leagues yet.
         </p>
-        <div className="flex items-center mt-8 gap-4">
+        <HStack align="center" className="mt-8 gap-4">
           <JoinLeagueButton />
           <CreateLeagueButton />
-        </div>
+        </HStack>
       </div>
     </main>
   );

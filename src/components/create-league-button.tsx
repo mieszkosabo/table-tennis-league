@@ -32,6 +32,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { HStack } from "@/components/ui/stack";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
@@ -165,11 +166,11 @@ function CreateLeagueForm({
           )}
         />
 
-        <div className="flex justify-end">
+        <HStack justify="end">
           <Button disabled={isPending} type="submit">
             Create league
           </Button>
-        </div>
+        </HStack>
       </form>
     </Form>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { HStack } from "@/components/ui/stack";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 
@@ -29,7 +30,7 @@ export const columns: ColumnDef<RankingData>[] = [
     sortDescFirst: true,
     header: ({ column }) => {
       return (
-        <div className="flex justify-end">
+        <HStack justify="end">
           <Button
             variant="ghost"
             onClick={() => {
@@ -39,7 +40,7 @@ export const columns: ColumnDef<RankingData>[] = [
             <ArrowUpDown className="ml-2 h-4 w-4" />
             Elo Rating
           </Button>
-        </div>
+        </HStack>
       );
     },
     cell: ({ row }) => (

@@ -38,6 +38,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { HStack } from "@/components/ui/stack";
 import { addMatch } from "@/lib/actions/match";
 import { cn } from "@/lib/utils";
 import { CalendarIcon, PlusIcon } from "lucide-react";
@@ -233,11 +234,11 @@ function CreateMatchForm({
           )}
         />
 
-        <div className="flex justify-end">
+        <HStack justify="end">
           <Button disabled={isPending} type="submit">
             Add match
           </Button>
-        </div>
+        </HStack>
       </form>
     </Form>
   );

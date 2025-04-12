@@ -3,6 +3,7 @@ import "@/app/globals.css";
 import { ThemeProvider } from "@/components/providers";
 import { TopBar } from "@/components/top-bar";
 import { Toaster } from "@/components/ui/sonner";
+import { VStack } from "@/components/ui/stack";
 
 export const metadata: Metadata = {
   title: "Table Tennis League",
@@ -25,9 +26,9 @@ export default function RootLayout({
         >
           <TopBar />
           <div className="min-h-screen flex flex-col w-full items-center">
-            <div className="flex flex-col w-full max-w-screen-lg py-16 px-4">
+            <VStack className="w-full max-w-screen-lg py-16 px-4">
               {children}
-            </div>
+            </VStack>
           </div>
           <Toaster />
         </ThemeProvider>

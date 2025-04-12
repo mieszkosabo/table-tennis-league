@@ -1,5 +1,6 @@
 "use client";
 
+import { HStack } from "@/components/ui/stack";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter } from "next/navigation";
 import type React from "react";
@@ -28,14 +29,14 @@ export const LeagueTabs = ({
         router.push(`/leagues/${leagueId}/${value}`);
       }}
     >
-      <div className="flex w-full justify-between">
+      <HStack justify="between" className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="ranking">Ranking</TabsTrigger>
           <TabsTrigger value="matches">Matches</TabsTrigger>
         </TabsList>
 
         {createMatchButton}
-      </div>
+      </HStack>
       <TabsContent value="ranking">{rankingContent}</TabsContent>
       <TabsContent value="matches">{matchesContent}</TabsContent>
     </Tabs>

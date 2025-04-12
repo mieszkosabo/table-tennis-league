@@ -16,6 +16,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
+import { VStack } from "@/components/ui/stack";
 import { joinLeague } from "@/lib/actions/league";
 import { useAction } from "next-safe-action/hooks";
 import { useRouter } from "next/navigation";
@@ -72,7 +73,7 @@ export const JoinLeagueButton = ({ buttonProps }: JoinLeagueButtonProps) => {
           }}
         >
           <div className="my-4">
-            <div className="flex flex-col gap-4">
+            <VStack className="gap-4">
               <Label htmlFor="name">Type the join code</Label>
               <InputOTP
                 maxLength={8}
@@ -97,11 +98,11 @@ export const JoinLeagueButton = ({ buttonProps }: JoinLeagueButtonProps) => {
                   <InputOTPSlot index={7} />
                 </InputOTPGroup>
               </InputOTP>
-            </div>
+            </VStack>
           </div>
 
           <DialogFooter>
-            <div className="flex flex-col items-end gap-2">
+            <VStack className="items-end gap-2">
               <Button disabled={isPending} className="w-fit" type="submit">
                 Join League
               </Button>
@@ -110,7 +111,7 @@ export const JoinLeagueButton = ({ buttonProps }: JoinLeagueButtonProps) => {
                   Please make sure your code is correct.
                 </p>
               )}
-            </div>
+            </VStack>
           </DialogFooter>
         </form>
       </DialogContent>
