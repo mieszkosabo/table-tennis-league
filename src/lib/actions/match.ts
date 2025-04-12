@@ -5,7 +5,6 @@ import { calculateNewElos } from "@/app/features/matches/utils";
 import { db } from "@/db/db";
 import { matches, playerStats } from "@/db/schema";
 import { authActionClient } from "@/lib/actions/safe-action";
-import { endOfToday } from "date-fns";
 import { and, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -49,8 +48,8 @@ export const addMatch = authActionClient
         player2Id: rest.player2Id,
         winner: rest.winner,
         score: rest.score,
-        createdAt: endOfToday(),
-        updatedAt: endOfToday(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
         leagueId,
         createdBy: user.id,
         player1Elo: player1OldElo,

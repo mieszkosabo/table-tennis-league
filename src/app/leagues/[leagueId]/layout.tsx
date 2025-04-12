@@ -1,7 +1,6 @@
-import { Button } from "@/components/ui/button";
+import { LeagueCode } from "@/components/ui/league-code";
 import { assertLoggedIn } from "@/lib/auth";
 import { assertUserInLeague, getLeague } from "@/lib/league";
-import { CopyIcon } from "lucide-react";
 import { redirect } from "next/navigation";
 
 export default async function LeaguePageLayout({
@@ -22,14 +21,7 @@ export default async function LeaguePageLayout({
     <div className="min-h-screen flex flex-col">
       <div className="flex flex-col gap-2">
         <div className="flex flex-col mb-8 gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-md text-slate-500 dark:text-slate-300 tracking-widest">
-              {formatJoinCode(leagueData.joinCode)}
-            </span>
-            <Button variant="ghost" size="icon">
-              <CopyIcon />
-            </Button>
-          </div>
+          <LeagueCode joinCode={leagueData.joinCode} />
 
           <h2 className="text-5xl font-bold text-slate-700 dark:text-slate-100">
             {leagueData.name}
@@ -43,16 +35,5 @@ export default async function LeaguePageLayout({
         {children}
       </div>
     </div>
-  );
-}
-
-function formatJoinCode(joinCode: string) {
-  return (
-    <>
-      <span className="mr-1">
-        {joinCode.slice(0, Math.floor(joinCode.length / 2))}
-      </span>
-      <span>{joinCode.slice(Math.floor(joinCode.length / 2))}</span>
-    </>
   );
 }

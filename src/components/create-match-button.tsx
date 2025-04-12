@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { endOfToday, format } from "date-fns";
+import { format } from "date-fns";
 import { useAction } from "next-safe-action/hooks";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -104,12 +104,9 @@ function CreateMatchForm({
   const form = useForm<AddMatchFormSchema>({
     resolver: zodResolver(addMatchFormSchema),
     defaultValues: {
-      // default to today
-      date: endOfToday(),
+      date: new Date(),
     },
   });
-
-  console.log("form", form.formState);
 
   return (
     <Form {...form}>
@@ -160,7 +157,9 @@ function CreateMatchForm({
               <FormLabel>Player 1</FormLabel>
               <FormControl>
                 <PlayersSelector
-                  players={players}
+                  players={players.filter(
+                    (player) => player.id !== form.watch("player2Id")
+                  )}
                   onChange={(value) => {
                     field.onChange(value?.id);
                   }}
@@ -184,7 +183,9 @@ function CreateMatchForm({
               <FormLabel>Player 2</FormLabel>
               <FormControl>
                 <PlayersSelector
-                  players={players}
+                  players={players.filter(
+                    (player) => player.id !== form.watch("player1Id")
+                  )}
                   onChange={(value) => {
                     field.onChange(value?.id);
                   }}
@@ -213,7 +214,11 @@ function CreateMatchForm({
               </FormLabel>
               <FormControl>
                 <PlayersSelector
-                  players={players}
+                  players={[form.watch("player1Id"), form.watch("player2Id")]
+                    .map((id) =>
+                      !id ? null : players.find((player) => player.id === id)
+                    )
+                    .filter((player) => player != null)}
                   onChange={(value) => {
                     field.onChange(value?.id);
                   }}

@@ -33,8 +33,8 @@ export const matches = pgTable(
     winner: text("winner").references(() => users.id, { onDelete: "set null" }),
     score: json("score"),
     date: timestamp("date", { mode: "date" }).notNull(),
-    createdAt: timestamp("created_at", { mode: "date" }),
-    updatedAt: timestamp("updated_at", { mode: "date" }),
+    createdAt: timestamp("created_at", { mode: "date" }).notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" }).notNull(),
     createdBy: text("created_by").references(() => users.id, {
       onDelete: "set null",
     }),

@@ -17,6 +17,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 interface Player {
   id: string;
@@ -36,8 +37,10 @@ export const PlayersSelector = ({
   selectedPlayer,
   onChange,
 }: PlayersSelectorProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <Popover>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -52,7 +55,7 @@ export const PlayersSelector = ({
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Search your leagues..." />
+          <CommandInput placeholder="Search players..." />
           <CommandList>
             <CommandEmpty>Player not found.</CommandEmpty>
 
@@ -63,6 +66,7 @@ export const PlayersSelector = ({
                   value={player.name ?? player.email}
                   onSelect={() => {
                     onChange(player);
+                    setIsOpen(false);
                   }}
                 >
                   <Check

@@ -50,6 +50,13 @@
       "when": 1744453658640,
       "tag": "0006_silly_dagger",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1744455990613,
+      "tag": "0007_thick_meteorite",
+      "breakpoints": true
     }
   ]
 }
