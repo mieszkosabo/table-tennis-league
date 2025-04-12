@@ -71,19 +71,20 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
   - [x] show league name
   - [x] show league description
   - [x] show players in league with their stats
-  - [ ] show matches in league
+  - [x] show matches in league
   - [ ] pagination for matches and players
 - owner
   - [ ] edit league (name, starting elo, description, etc)
-  - [ ] delete league
-  - [ ] remove player from league
-  - [ ] add match to league
-  - [ ] remove match from league
+  - [ ] delete league (???)
+  - [ ] remove player from league (???)
+  - [x] add match to league
+  - [ ] remove or edit match from league #EditingMatches
   - [ ] transfer ownership
 - [ ] claim league ownership if owner is deleted
 - [x] add matches
+  - [ ] Player1 is prefilled with the user that is logged in
   - [ ] update checkpoint
-- [ ] edit matches
+- [ ] edit matches #EditingMatches
 - [x] redirect to home page if user tries to open a league that doesn't exist or they don't have access to
 - [x] join league button in selector
 - [x] create league button in selector
@@ -91,6 +92,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [x] create a max-width container for the app content and center it
 - [ ] /join?joinCode=... page
 - [ ] Feedback link (env var)
+  - [ ] GitHub issues
 - [x] account button popup
   - [x] avatar
   - [x] name
