@@ -43,11 +43,13 @@ async function getData(leagueId: string): Promise<MatchesData[]> {
       ...match.player1,
       name: match.player1.name ?? match.player1.email ?? "Unknown",
       isWinner: match.winner === match.player1.id,
+      image: match.player1.image ?? undefined,
     },
     player2: {
       ...match.player2,
       name: match.player2.name ?? match.player2.email ?? "Unknown",
       isWinner: match.winner === match.player2.id,
+      image: match.player2.image ?? undefined,
     },
   }));
 }

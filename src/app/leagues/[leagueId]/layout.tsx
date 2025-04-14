@@ -25,7 +25,7 @@ export default async function LeaguePageLayout({
       <VStack className="gap-2">
         <VStack className="mb-8 gap-4">
           <HStack align="center" justify="between">
-            <h2 className="sm:text-5xl text-2xl font-bold text-slate-700 dark:text-slate-100 truncate">
+            <h2 className="sm:text-5xl sm:leading-tight text-2xl font-bold text-slate-700 dark:text-slate-100 truncate">
               {leagueData.name}
             </h2>
 

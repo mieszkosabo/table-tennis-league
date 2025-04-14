@@ -1,12 +1,16 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { HStack } from "@/components/ui/stack";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 
 export type RankingData = {
-  playerName: string;
+  player: {
+    name: string;
+    image?: string;
+  };
   playerElo: number;
   gamesPlayed: number;
   gamesWon: number;
@@ -24,6 +28,17 @@ export const columns: ColumnDef<RankingData>[] = [
     accessorKey: "playerName",
     enableSorting: true,
     header: "Player Name",
+    cell: ({ row }) => (
+      <HStack align="center" className="gap-2">
+        <Avatar className="h-6 w-6">
+          <AvatarImage src={row.original.player.image} />
+          <AvatarFallback>
+            {row.original.player.name.at(0) ?? "U"}
+          </AvatarFallback>
+        </Avatar>
+        {row.original.player.name}
+      </HStack>
+    ),
   },
   {
     accessorKey: "playerElo",

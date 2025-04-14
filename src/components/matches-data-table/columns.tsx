@@ -1,5 +1,7 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { HStack } from "@/components/ui/stack";
 import {
   Tooltip,
   TooltipContent,
@@ -12,8 +14,8 @@ import { format, isFuture } from "date-fns";
 import { formatDistanceToNowStrict } from "date-fns";
 
 export type MatchesData = {
-  player1: { name: string; isWinner: boolean };
-  player2: { name: string; isWinner: boolean };
+  player1: { name: string; isWinner: boolean; image?: string };
+  player2: { name: string; isWinner: boolean; image?: string };
   matchDate: Date;
   player1OldElo: number;
   player2OldElo: number;
@@ -50,11 +52,6 @@ export const columns: ColumnDef<MatchesData>[] = [
     header: "Player 2",
     cell: ({ row }) => <FormatPlayerName player={row.original.player2} />,
   },
-  {
-    accessorKey: "odds",
-    header: () => <div className="text-right">Odds</div>,
-    cell: () => <div className="text-right">TODO</div>,
-  },
 ];
 
 const FormatPlayerName = ({
@@ -62,12 +59,23 @@ const FormatPlayerName = ({
 }: {
   player: MatchesData["player1" | "player2"];
 }) => (
-  <span
-    className={cn(
-      "font-medium whitespace-nowrap",
-      player.isWinner && "dark:text-yellow-500 text-yellow-700"
-    )}
-  >
-    {player.isWinner ? `${player.name} 🏆` : player.name}
-  </span>
+  <HStack align="center" className="gap-2">
+    <Avatar
+      className={cn(
+        "h-8 w-8",
+        player.isWinner && "border-2 box-border border-yellow-500"
+      )}
+    >
+      <AvatarImage src={player.image} />
+      <AvatarFallback>{player.name.at(0) ?? "U"}</AvatarFallback>
+    </Avatar>
+    <span
+      className={cn(
+        "font-medium whitespace-nowrap",
+        player.isWinner && "dark:text-yellow-500 text-yellow-700"
+      )}
+    >
+      {player.isWinner ? `${player.name} 🏆` : player.name}
+    </span>
+  </HStack>
 );

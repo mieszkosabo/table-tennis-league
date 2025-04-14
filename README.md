@@ -121,7 +121,8 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
   - [ ] activity feed
 - [ ] Tests
   - [ ] testcontainers
-- [ ] add avatars to tables
-  - [ ] ranking
-  - [ ] matches
+- [x] add avatars to tables
+  - [x] ranking
+  - [x] matches
 - [x] works on mobile
+- [ ] show "odds" column

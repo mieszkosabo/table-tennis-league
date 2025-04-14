@@ -11,6 +11,7 @@ async function getData(leagueId: string): Promise<RankingData[]> {
   const data = await db
     .select({
       playerName: users.name,
+      image: users.image,
       elo: playerStats.elo,
       wins: playerStats.wins,
       losses: playerStats.losses,
@@ -25,7 +26,10 @@ async function getData(leagueId: string): Promise<RankingData[]> {
     const losses = p.losses;
 
     return {
-      playerName: p.playerName ?? "Unknown",
+      player: {
+        name: p.playerName ?? "Unknown",
+        image: p.image ?? undefined,
+      },
       playerElo: p.elo,
       gamesPlayed: wins + losses,
       gamesWon: wins,
