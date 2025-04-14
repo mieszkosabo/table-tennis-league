@@ -11,11 +11,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { SignOutButton } from "@/components/sign-out-button";
+import type { ReactNode } from "react";
 
 export const ProfileButton = ({
   user,
+  feedbackLink,
 }: {
   user: { name?: string | null; image?: string | null; email?: string | null };
+  feedbackLink?: ReactNode;
 }) => {
   return (
     <DropdownMenu>
@@ -41,6 +44,10 @@ export const ProfileButton = ({
         <DropdownMenuItem disabled>Profile (Coming soon)</DropdownMenuItem>
 
         <DropdownMenuSeparator />
+
+        <DropdownMenuItem className="sm:hidden">
+          {feedbackLink}
+        </DropdownMenuItem>
 
         <DropdownMenuItem>
           <SignOutButton className="text-red-600" />

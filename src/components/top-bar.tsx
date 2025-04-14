@@ -1,7 +1,7 @@
 import { ModeToggle } from "@/components/color-theme-toggle";
+import { FeedbackLink } from "@/components/feedback-link";
 import { LeagueSelector } from "@/components/league-selector";
 import { ProfileButton } from "@/components/profile-button";
-import { env } from "@/env/server";
 import { assertLoggedIn } from "@/lib/auth";
 import { getUserLeagues } from "@/lib/league";
 
@@ -29,16 +29,11 @@ export const TopBar = async () => {
             )}
           </div>
           <div className="flex items-center space-x-4">
-            {env.FEEDBACK_LINK && (
-              <a
-                className="text-sm text-fuchsia-900 dark:text-fuchsia-100"
-                href={env.FEEDBACK_LINK}
-              >
-                Send feedback
-              </a>
-            )}
+            <div className="hidden sm:flex">
+              <FeedbackLink />
+            </div>
             <ModeToggle />
-            <ProfileButton user={user} />
+            <ProfileButton user={user} feedbackLink={<FeedbackLink />} />
           </div>
         </div>
       </div>

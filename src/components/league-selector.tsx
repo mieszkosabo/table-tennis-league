@@ -57,9 +57,11 @@ export const LeagueSelector = ({ leagues }: LeagueSelectorProps) => {
           aria-expanded={open}
           className="w-[200px] justify-between"
         >
-          {selectedLeagueId
-            ? leagues.find((league) => league.id === selectedLeagueId)?.name
-            : "Select league..."}
+          <span className="truncate">
+            {selectedLeagueId
+              ? leagues.find((league) => league.id === selectedLeagueId)?.name
+              : "Select league..."}
+          </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>

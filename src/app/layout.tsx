@@ -26,7 +26,7 @@ export default function RootLayout({
         >
           <TopBar />
           <div className="min-h-screen flex flex-col w-full items-center">
-            <VStack className="w-full max-w-screen-lg py-16 px-4">
+            <VStack className="w-full max-w-screen-lg sm:py-16 py-6 sm:px-4 px-2">
               {children}
             </VStack>
           </div>

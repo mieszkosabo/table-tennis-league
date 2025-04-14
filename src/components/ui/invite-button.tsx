@@ -14,6 +14,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+
+import { useBreakpoint } from "@/lib/use-breakpoint";
 import { LinkIcon, UserPlusIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -31,41 +40,70 @@ export const InviteButton = ({ joinCode }: InviteButtonProps) => {
     await navigator.clipboard.writeText(link);
     toast("Copied!");
   };
+
+  const isMobile = !useBreakpoint("sm");
+
+  const trigger = isMobile ? (
+    <Button variant="secondary" size="icon" className="items-center gap-2">
+      <UserPlusIcon className="h-4 w-4" />
+    </Button>
+  ) : (
+    <Button variant="secondary" className="items-center gap-2">
+      <UserPlusIcon className="h-4 w-4" />
+      <span>Invite</span>
+    </Button>
+  );
+
+  const title = "Invite others";
+
+  const content = (
+    <div className="flex flex-col gap-4 py-4">
+      <div className="flex items-center justify-between gap-2 p-3 border rounded-md">
+        <span className="text-md font-mono tracking-widest">
+          {formatJoinCode(joinCode)}
+        </span>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={copyCode}
+          aria-label="Copy join code"
+        >
+          <CopyIcon className="h-4 w-4" />
+        </Button>
+      </div>
+      <Button
+        variant="outline"
+        onClick={copyLink}
+        className="flex items-center gap-2"
+      >
+        <LinkIcon className="h-4 w-4" />
+        <span>Copy Join Link</span>
+      </Button>
+    </div>
+  );
+
+  if (isMobile) {
+    return (
+      <Drawer open={open} onOpenChange={setOpen}>
+        <DrawerTrigger asChild>{trigger}</DrawerTrigger>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>{title}</DrawerTitle>
+          </DrawerHeader>
+          {content}
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="secondary" className="flex items-center gap-2">
-          <UserPlusIcon className="h-4 w-4" />
-          <span>Invite</span>
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Invite others</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col gap-4 py-4">
-          <div className="flex items-center justify-between gap-2 p-3 border rounded-md">
-            <span className="text-md font-mono tracking-widest">
-              {formatJoinCode(joinCode)}
-            </span>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={copyCode}
-              aria-label="Copy join code"
-            >
-              <CopyIcon className="h-4 w-4" />
-            </Button>
-          </div>
-          <Button
-            variant="outline"
-            onClick={copyLink}
-            className="flex items-center gap-2"
-          >
-            <LinkIcon className="h-4 w-4" />
-            <span>Copy Join Link</span>
-          </Button>
-        </div>
+        {content}
       </DialogContent>
     </Dialog>
   );
