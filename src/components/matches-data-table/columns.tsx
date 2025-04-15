@@ -61,10 +61,7 @@ const FormatPlayerName = ({
 }) => (
   <HStack align="center" className="gap-2">
     <Avatar
-      className={cn(
-        "h-8 w-8",
-        player.isWinner && "border-2 box-border border-yellow-500"
-      )}
+      className={cn("h-8 w-8", player.isWinner && "border-2 border-yellow-500")}
     >
       <AvatarImage src={player.image} />
       <AvatarFallback>{player.name.at(0) ?? "U"}</AvatarFallback>
