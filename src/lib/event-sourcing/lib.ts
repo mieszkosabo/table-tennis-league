@@ -10,7 +10,7 @@ type AppError = {
 
 type Command = (
   tx: Tx,
-  input: any,
+  input: unknown,
 ) => Promise<
   { type: "error"; error: AppError } | { type: "success"; events: Event[] }
 >;
