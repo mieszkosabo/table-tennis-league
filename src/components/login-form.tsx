@@ -44,7 +44,7 @@ export function LoginForm({
             <div className="grid gap-6">
               <div className="flex flex-col gap-4">
                 <Button
-                  onClick={async (e) => {
+                  onClick={(e) => {
                     e.preventDefault();
                     void signIn("github", {
                       callbackUrl: callbackUrl || "/",
@@ -102,7 +102,9 @@ export function LoginForm({
                         type="text"
                         placeholder="test user"
                         value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        onChange={(e) => {
+                          setUsername(e.target.value);
+                        }}
                       />
                     </div>
 

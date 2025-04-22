@@ -127,4 +127,4 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [x] works on mobile
 - [ ] show "odds" column
 - [ ] login with google
-- [ ] make sure the /join page works for non-logged in users (i.e. they get redirected to the login page and then to the join page after and just not the home page)
+- [x] make sure the /join page works for non-logged in users (i.e. they get redirected to the login page and then to the join page after and just not the home page)
