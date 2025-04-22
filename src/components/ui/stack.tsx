@@ -33,7 +33,7 @@ export const HStack = ({ className, ...props }: StackProps) => (
         "items-baseline": props.align === "baseline",
         "items-stretch": props.align === "stretch",
       },
-      className
+      className,
     )}
     {...props}
   />

@@ -28,7 +28,7 @@ export function CreateEditLeagueForm({
   isEdit = false,
 }: {
   onSubmit: (
-    values: z.infer<typeof createLeagueSchema | typeof editLeagueSchema>
+    values: z.infer<typeof createLeagueSchema | typeof editLeagueSchema>,
   ) => void;
   isPending?: boolean;
   defaults: Partial<
@@ -74,7 +74,7 @@ export function CreateEditLeagueForm({
                   "text-xs text-slate-500 text-right",
                   (field.value?.length ?? 0) >
                     CREATE_LEAGUE_LIMITS.MAX_LEAGUE_DESCRIPTION_LENGTH &&
-                    "text-red-500"
+                    "text-red-500",
                 )}
               >
                 {field.value?.length ?? 0}/

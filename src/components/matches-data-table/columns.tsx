@@ -69,7 +69,7 @@ const FormatPlayerName = ({
     <span
       className={cn(
         "font-medium whitespace-nowrap",
-        player.isWinner && "dark:text-yellow-500 text-yellow-700"
+        player.isWinner && "dark:text-yellow-500 text-yellow-700",
       )}
     >
       {player.isWinner ? `${player.name} 🏆` : player.name}

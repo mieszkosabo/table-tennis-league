@@ -13,7 +13,8 @@
     "check:lint": "next lint",
     "fix:lint": "next lint --fix",
     "check:format": "biome check",
-    "fix:format": "biome format",
+    "fix:format": "biome check --fix",
+    "fix:format:yolo": "biome check --fix --unsafe",
     "check:types": "tsc --noEmit --pretty"
   },
   "dependencies": {

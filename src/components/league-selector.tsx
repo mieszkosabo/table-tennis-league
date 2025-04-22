@@ -35,12 +35,12 @@ export const LeagueSelector = ({ leagues }: LeagueSelectorProps) => {
   const { leagueId: leagueIdParam } = useParams();
   const leagueId = useMemo(
     () =>
-      Array.isArray(leagueIdParam) ? leagueIdParam[0] : leagueIdParam ?? null,
-    [leagueIdParam]
+      Array.isArray(leagueIdParam) ? leagueIdParam[0] : (leagueIdParam ?? null),
+    [leagueIdParam],
   );
   const [open, setOpen] = useState(false);
   const [selectedLeagueId, setSelectedLeagueId] = useState<string | null>(
-    leagueId
+    leagueId,
   );
 
   useEffect(() => {
@@ -78,7 +78,7 @@ export const LeagueSelector = ({ leagues }: LeagueSelectorProps) => {
                   value={league.name}
                   onSelect={(leagueName) => {
                     const leagueId = leagues.find(
-                      (league) => league.name === leagueName
+                      (league) => league.name === leagueName,
                     )?.id;
                     if (!leagueId) {
                       return;
@@ -94,7 +94,7 @@ export const LeagueSelector = ({ leagues }: LeagueSelectorProps) => {
                       "mr-2 h-4 w-4",
                       selectedLeagueId === league.id
                         ? "opacity-100"
-                        : "opacity-0"
+                        : "opacity-0",
                     )}
                   />
                   {league.name}
