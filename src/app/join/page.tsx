@@ -1,10 +1,5 @@
-import { auth } from "@/app/api/auth/auth";
-import {
-  JOIN_CODE_COOKIE_KEY,
-  SHOULD_REDIRECT_COOKIE_KEY,
-} from "@/app/join/consts";
 import { joinLeague } from "@/lib/actions/league";
-import { cookies } from "next/headers";
+import { assertLoggedIn } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export default async function JoinPage({
@@ -13,13 +8,9 @@ export default async function JoinPage({
   searchParams: Promise<{ joinCode: string }>;
 }) {
   const { joinCode } = await searchParams;
-  const cookieStore = await cookies();
-  const user = await auth();
-  if (!user) {
-    cookieStore.set(SHOULD_REDIRECT_COOKIE_KEY, "true");
-    cookieStore.set(JOIN_CODE_COOKIE_KEY, joinCode);
-    redirect("/api/auth/signin");
-  }
+  await assertLoggedIn({
+    callbackUrl: `/join?joinCode=${joinCode}`,
+  });
 
   const result = await joinLeague({ joinCode });
 

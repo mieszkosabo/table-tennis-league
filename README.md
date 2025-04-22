@@ -5,7 +5,7 @@
 ### Prerequisites
 
 - Node (I recommend https://volta.sh)
-- pnpm
+- pnpm (v10.8.1)
 - Docker Desktop
 
 ### Installation

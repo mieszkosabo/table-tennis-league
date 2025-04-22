@@ -10,6 +10,9 @@ import GithubProvider from "next-auth/providers/github";
 // we allow login in with just username for development purposes
 // to test the app with multiple users
 export const authOptions = {
+  pages: {
+    signIn: "/auth/login",
+  },
   adapter: DrizzleAdapter(db, {
     usersTable: users,
     accountsTable: accounts,
