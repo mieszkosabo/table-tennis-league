@@ -10,7 +10,6 @@ const githubOAuthSchema = z.string().min(1);
 export const env = createEnv({
   server: {
     DATABASE_URL: z.string().min(1),
-    AUTH_DRIZZLE_URL: z.string().min(1),
     NEXTAUTH_SECRET: z.string().min(1),
     GITHUB_ID: IS_DEV ? githubOAuthSchema.optional() : githubOAuthSchema,
     GITHUB_SECRET: IS_DEV ? githubOAuthSchema.optional() : githubOAuthSchema,
