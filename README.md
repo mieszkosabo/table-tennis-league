@@ -117,8 +117,28 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [ ] Handle case where two players have the same name 🐙
 - [ ] When two leagues have the same name the league selector acts weird 🐙
 - [ ] Event sourcing for mutations
-  - [ ] permissions
-  - [ ] activity feed
+  - Commands:
+    - League
+      - [x] `createLeague`
+      - [ ] `deleteLeague`
+      - [x] `updateLeagueProperties`
+      - [x] `joinLeague`
+      - [ ] `removePlayerFromLeague`
+      - [ ] `transferLeagueOwnership`
+    - Match
+      - [ ] `recordMatch` !
+      - [ ] `scheduleMatch` !
+      - [ ] `editMatch`
+      - [ ] `deleteMatch`
+      - [ ] `setMatchWinner`
+    - Player
+      - [ ] `updatePlayerDisplayName`
+    - User
+      - [ ] `updateUserDefaultDisplayName`
+  - Other
+    - [ ] save events to database
+    - [ ] activity feed
+    - [ ] use dataloader in event processing
 - [ ] Tests
   - [ ] testcontainers
 - [x] add avatars to tables

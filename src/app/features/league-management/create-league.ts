@@ -1,30 +1,12 @@
-import {
-  CREATE_LEAGUE_DEFAULTS,
-  CREATE_LEAGUE_LIMITS,
-} from "@/app/features/create-league/consts";
+import { createLeagueSchema } from "@/app/features/league-management/schemas";
 import { leagues, playerStats, playersToLeagues } from "@/db/schema";
 import {
   defineCommand,
   defineModelUpdateFunction,
 } from "@/lib/event-sourcing/lib";
 import { generateJoinCode, uuid } from "@/lib/utils";
-import { z } from "zod";
 
-const createLeagueSchema = z.object({
-  name: z.string().min(2).max(CREATE_LEAGUE_LIMITS.MAX_LEAGUE_NAME_LENGTH),
-  description: z
-    .string()
-    .max(CREATE_LEAGUE_LIMITS.MAX_LEAGUE_DESCRIPTION_LENGTH)
-    .default(CREATE_LEAGUE_DEFAULTS.description),
-  startingElo: z
-    .number()
-    .int()
-    .min(CREATE_LEAGUE_LIMITS.MIN_LEAGUE_STARTING_ELO)
-    .max(CREATE_LEAGUE_LIMITS.MAX_LEAGUE_STARTING_ELO)
-    .default(CREATE_LEAGUE_DEFAULTS.startingElo),
-});
-
-export const createLeague = defineCommand("createLeague", {
+export const createLeagueCommand = defineCommand("createLeague", {
   inputSchema: createLeagueSchema,
   runCommand: (input, ctx) => {
     // no additional validation needed

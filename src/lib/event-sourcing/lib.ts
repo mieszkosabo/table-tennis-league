@@ -25,6 +25,22 @@ type BaseEvent<T extends { type: string; data: unknown }> = {
   createdAt: Date;
 };
 
+export const commandError = (
+  message: string,
+): { type: "error"; error: { message: string } } => ({
+  type: "error",
+  error: {
+    message,
+  },
+});
+
+export const commandSuccess = <const Events extends Event[]>(
+  events: Events,
+): { type: "success"; events: Events } => ({
+  type: "success",
+  events,
+});
+
 export type Event =
   // League events
   | BaseEvent<{
@@ -41,7 +57,7 @@ export type Event =
       data: {
         leagueName?: string;
         description?: string;
-        startingElo?: string;
+        startingElo?: number;
       };
     }>
   | BaseEvent<{ type: "LeagueJoined"; data: null }>
@@ -173,18 +189,20 @@ export const defineModelUpdateFunction = <
   return updateFn;
 };
 
-export const startProcessingEvents = async (
+export const startProcessingEvents = async <const Events extends Event[]>(
   ctx: Context,
   runCommand: (
     ctx: Context,
   ) => Promise<
-    { type: "success"; events: Event[] } | { type: "error"; error: AppError }
+    { type: "success"; events: Events } | { type: "error"; error: AppError }
   >,
-): Promise<AppError | null> => {
+): Promise<
+  { type: "success"; events: Events } | { type: "error"; error: AppError }
+> => {
   return await db.transaction(async (tx) => {
     const maybeEvents = await runCommand(ctx);
     if (maybeEvents.type === "error") {
-      return maybeEvents.error;
+      return maybeEvents;
     }
 
     const eventsToHandle = maybeEvents.events;
@@ -198,6 +216,6 @@ export const startProcessingEvents = async (
       }
     }
 
-    return null;
+    return maybeEvents;
   });
 };

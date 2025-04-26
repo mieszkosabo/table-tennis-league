@@ -1,134 +1,82 @@
 "use server";
 
-import { db } from "@/db/db";
-import { leagues, playerStats, playersToLeagues } from "@/db/schema";
-import { generateJoinCode } from "@/lib/utils";
-
+import { createLeagueCommand } from "@/app/features/league-management/create-league";
+import { editLeagueCommand } from "@/app/features/league-management/edit-league";
+import { joinLeagueCommand } from "@/app/features/league-management/join-league";
 import {
   createLeagueSchema,
   editLeagueSchema,
-} from "@/app/features/create-league/schema";
+  joinLeagueSchema,
+} from "@/app/features/league-management/schemas";
+import { db } from "@/db/db";
 import { authActionClient } from "@/lib/actions/safe-action";
-import { and, eq } from "drizzle-orm";
+import { startProcessingEvents } from "@/lib/event-sourcing/lib";
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
 
 export const createLeague = authActionClient
   .schema(createLeagueSchema)
-  .action(
-    async ({
-      parsedInput: { leagueName, description, startingElo },
-      ctx: { user },
-    }) => {
-      const leagueId = await db.transaction(async (tx) => {
-        const result = await tx
-          .insert(leagues)
-          .values({
-            name: leagueName,
-            description,
-            startingElo,
-            ownerId: user.id,
-            joinCode: generateJoinCode(),
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          })
-          .returning({
-            id: leagues.id,
-            startingElo: leagues.startingElo,
-          });
+  .action(async ({ parsedInput, ctx: { user } }) => {
+    const result = await db.transaction(async (tx) =>
+      startProcessingEvents(
+        {
+          tx,
+          actorId: user.id,
+        },
+        (ctx) => createLeagueCommand(parsedInput, ctx),
+      ),
+    );
 
-        const leagueId = result[0].id;
+    if (result.type === "error") {
+      throw new Error(result.error.message);
+    }
 
-        await Promise.all([
-          tx.insert(playersToLeagues).values({
-            playerId: user.id,
-            leagueId,
-          }),
+    const leagueId = result.events[0].aggregateId;
 
-          tx.insert(playerStats).values({
-            playerId: user.id,
-            leagueId,
-            elo: result[0].startingElo,
-          }),
-        ]);
-
-        return leagueId;
-      });
-
-      revalidatePath(`/leagues/${leagueId}`);
-      return { leagueId };
-    },
-  );
+    revalidatePath(`/leagues/${leagueId}`);
+    return { leagueId };
+  });
 
 export const editLeague = authActionClient
   .schema(editLeagueSchema)
-  .action(
-    async ({
-      parsedInput: { leagueId, leagueName, description, startingElo },
-      ctx: { user },
-    }) => {
-      await db.transaction(async (tx) => {
-        const league = await tx.query.leagues.findFirst({
-          where: and(eq(leagues.id, leagueId), eq(leagues.ownerId, user.id)),
-        });
+  .action(async ({ parsedInput, ctx: { user } }) => {
+    const result = await db.transaction(async (tx) =>
+      startProcessingEvents(
+        {
+          tx,
+          actorId: user.id,
+        },
+        (ctx) => editLeagueCommand(parsedInput, ctx),
+      ),
+    );
 
-        if (!league) {
-          throw new Error("League not found or you are not the owner");
-        }
+    if (result.type === "error") {
+      throw new Error(result.error.message);
+    }
 
-        await tx
-          .update(leagues)
-          .set({
-            name: leagueName,
-            description,
-            startingElo,
-            updatedAt: new Date(),
-          })
-          .where(eq(leagues.id, leagueId));
+    const leagueId = result.events[0].aggregateId;
 
-        return leagueId;
-      });
-
-      revalidatePath(`/leagues/${leagueId}`);
-      return { leagueId };
-    },
-  );
-
-const joinLeagueSchema = z.object({
-  joinCode: z.string().min(1).max(255),
-});
+    revalidatePath(`/leagues/${leagueId}`);
+    return { leagueId };
+  });
 
 export const joinLeague = authActionClient
   .schema(joinLeagueSchema)
-  .action(async ({ parsedInput: { joinCode }, ctx: { user } }) => {
-    const leagueId = await db.transaction(async (tx) => {
-      const league = await tx.query.leagues.findFirst({
-        where: eq(leagues.joinCode, joinCode),
-        columns: {
-          id: true,
-          startingElo: true,
+  .action(async ({ parsedInput, ctx: { user } }) => {
+    const result = await db.transaction(async (tx) =>
+      startProcessingEvents(
+        {
+          tx,
+          actorId: user.id,
         },
-      });
+        (ctx) => joinLeagueCommand(parsedInput, ctx),
+      ),
+    );
 
-      if (!league) {
-        throw new Error("Invalid join code");
-      }
+    if (result.type === "error") {
+      throw new Error(result.error.message);
+    }
 
-      await Promise.all([
-        tx.insert(playersToLeagues).values({
-          playerId: user.id,
-          leagueId: league.id,
-        }),
-
-        tx.insert(playerStats).values({
-          playerId: user.id,
-          leagueId: league.id,
-          elo: league.startingElo,
-        }),
-      ]);
-
-      return league.id;
-    });
+    const leagueId = result.events[0].aggregateId;
 
     return { leagueId };
   });

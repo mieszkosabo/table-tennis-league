@@ -1,8 +1,8 @@
-import { CREATE_LEAGUE_LIMITS } from "@/app/features/create-league/consts";
+import { CREATE_LEAGUE_LIMITS } from "@/app/features/league-management/consts";
 import {
   createLeagueSchema,
   type editLeagueSchema,
-} from "@/app/features/create-league/schema";
+} from "@/app/features/league-management/schemas";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -36,7 +36,8 @@ export function CreateEditLeagueForm({
   >;
   isEdit?: boolean;
 }) {
-  const form = useForm<z.infer<typeof createLeagueSchema>>({
+  const form = useForm({
+    // @ts-expect-error FIXME: look later into this
     resolver: zodResolver(createLeagueSchema),
     defaultValues: defaults,
   });
@@ -46,7 +47,7 @@ export function CreateEditLeagueForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="leagueName"
+          name="name"
           render={({ field }) => (
             <FormItem>
               <FormLabel>League name</FormLabel>

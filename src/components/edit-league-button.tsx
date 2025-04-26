@@ -59,7 +59,7 @@ export const EditLeagueButton = ({ leagueData }: EditLeagueButtonProps) => {
           isPending={isPending}
           defaults={{
             ...leagueData,
-            leagueName: leagueData.name,
+            name: leagueData.name,
             description: leagueData.description || "",
           }}
           isEdit

@@ -1,7 +1,7 @@
 import {
   CREATE_LEAGUE_DEFAULTS,
   CREATE_LEAGUE_LIMITS,
-} from "@/app/features/create-league/consts";
+} from "@/app/features/league-management/consts";
 import { leagueCheckpoints } from "@/db/schema/matches";
 import { users } from "@/db/schema/users";
 import { relations } from "drizzle-orm";

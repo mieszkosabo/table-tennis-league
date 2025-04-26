@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { CREATE_LEAGUE_DEFAULTS } from "@/app/features/create-league/consts";
+import { CREATE_LEAGUE_DEFAULTS } from "@/app/features/league-management/consts";
 import { CreateEditLeagueForm } from "@/components/edit-league-form";
 
 export interface CreateLeagueButtonProps {
