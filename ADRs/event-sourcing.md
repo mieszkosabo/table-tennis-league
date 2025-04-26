@@ -125,3 +125,32 @@ See [Editing Matches](./editing-matches.md)
 ### permissions:
 
 Same as in `match-edited`.
+
+---
+
+# Commands:
+
+## League
+
+- `createLeague`
+- `deleteLeague`
+- `updateLeagueProperties`
+- `joinLeague`
+- `removePlayerFromLeague`
+- `transferLeagueOwnership`
+
+## Match
+
+- `recordMatch`
+- `scheduleMatch`
+- `editMatch`
+- `deleteMatch`
+- `setMatchWinner`
+
+## Player
+
+- `updatePlayerDisplayName`
+
+## User
+
+- `updateUserDefaultDisplayName`
