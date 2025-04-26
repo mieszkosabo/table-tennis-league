@@ -172,7 +172,7 @@ function AddMatchForm({
               <FormControl>
                 <PlayersSelector
                   players={players.filter(
-                    (player) => player.id !== form.watch("player2Id")
+                    (player) => player.id !== form.watch("player2Id"),
                   )}
                   onChange={(value) => {
                     field.onChange(value?.id);
@@ -198,7 +198,7 @@ function AddMatchForm({
               <FormControl>
                 <PlayersSelector
                   players={players.filter(
-                    (player) => player.id !== form.watch("player1Id")
+                    (player) => player.id !== form.watch("player1Id"),
                   )}
                   onChange={(value) => {
                     field.onChange(value?.id);
@@ -230,7 +230,7 @@ function AddMatchForm({
                 <PlayersSelector
                   players={[form.watch("player1Id"), form.watch("player2Id")]
                     .map((id) =>
-                      !id ? null : players.find((player) => player.id === id)
+                      !id ? null : players.find((player) => player.id === id),
                     )
                     .filter((player) => player != null)}
                   onChange={(value) => {

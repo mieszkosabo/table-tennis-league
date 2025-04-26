@@ -58,10 +58,10 @@ export const MatchesDataTable = async ({ leagueId }: { leagueId: string }) => {
   const data = await getData(leagueId);
 
   const scheduledMatches = data.filter(
-    (match) => !match.player1.isWinner && !match.player2.isWinner
+    (match) => !match.player1.isWinner && !match.player2.isWinner,
   );
   const pastMatches = data.filter(
-    (match) => match.player1.isWinner || match.player2.isWinner
+    (match) => match.player1.isWinner || match.player2.isWinner,
   );
 
   return (

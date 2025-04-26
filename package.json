@@ -13,7 +13,8 @@
     "check:lint": "next lint",
     "fix:lint": "next lint --fix",
     "check:format": "biome check",
-    "fix:format": "biome format",
+    "fix:format": "biome check --fix",
+    "fix:format:yolo": "biome check --fix --unsafe",
     "check:types": "tsc --noEmit --pretty"
   },
   "dependencies": {
@@ -60,16 +61,19 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@eslint/eslintrc": "^3",
+    "@next/eslint-plugin-next": "^15.3.1",
     "@types/node": "^20",
     "@types/pg": "^8.11.11",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@typescript-eslint/parser": "^8.31.0",
     "drizzle-kit": "^0.30.6",
     "eslint": "^9",
     "eslint-config-next": "15.1.6",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-path-alias": "^2.1.0",
     "eslint-plugin-react-compiler": "19.0.0-beta-aeaed83-20250323",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.8.2"

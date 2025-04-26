@@ -7,8 +7,10 @@ export default async function JoinPage({
 }: {
   searchParams: Promise<{ joinCode: string }>;
 }) {
-  await assertLoggedIn();
   const { joinCode } = await searchParams;
+  await assertLoggedIn({
+    callbackUrl: `/join?joinCode=${joinCode}`,
+  });
 
   const result = await joinLeague({ joinCode });
 

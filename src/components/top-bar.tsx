@@ -1,16 +1,18 @@
+import { auth } from "@/app/api/auth/auth";
 import { ModeToggle } from "@/components/color-theme-toggle";
 import { FeedbackLink } from "@/components/feedback-link";
 import { LeagueSelector } from "@/components/league-selector";
 import { ProfileButton } from "@/components/profile-button";
-import { assertLoggedIn } from "@/lib/auth";
 import { getUserLeagues } from "@/lib/league";
 
 export const TopBar = async () => {
-  const { user } = await assertLoggedIn();
-  const userLeagues = (await getUserLeagues(user.id)).map(({ league }) => ({
-    id: league.id,
-    name: league.name,
-  }));
+  const user = await auth();
+  const userLeagues = !user
+    ? []
+    : (await getUserLeagues(user.user.id)).map(({ league }) => ({
+        id: league.id,
+        name: league.name,
+      }));
 
   return (
     <div className="flex w-screen border-b md:sticky top-0 bg-background dark:border-slate-800 z-10">
@@ -33,7 +35,9 @@ export const TopBar = async () => {
               <FeedbackLink />
             </div>
             <ModeToggle />
-            <ProfileButton user={user} feedbackLink={<FeedbackLink />} />
+            {user && (
+              <ProfileButton user={user.user} feedbackLink={<FeedbackLink />} />
+            )}
           </div>
         </div>
       </div>

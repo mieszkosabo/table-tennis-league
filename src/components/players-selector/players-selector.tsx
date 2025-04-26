@@ -48,7 +48,7 @@ export const PlayersSelector = ({
           className="w-[200px] justify-between"
         >
           {selectedPlayer
-            ? selectedPlayer.name ?? selectedPlayer.email
+            ? (selectedPlayer.name ?? selectedPlayer.email)
             : "Select player..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -74,7 +74,7 @@ export const PlayersSelector = ({
                       "mr-2 h-4 w-4",
                       selectedPlayer?.id === player.id
                         ? "opacity-100"
-                        : "opacity-0"
+                        : "opacity-0",
                     )}
                   />
                   {player.name ?? player.email}
