@@ -18,27 +18,36 @@ export const removePlayerFromLeagueCommand = defineCommand(
 
       const { leagueId, playerId } = input;
 
-      const [leagueData, playerLeagueMatchesCount] = await Promise.all([
-        tx.query.leagues.findFirst({
-          where: eq(leagues.id, leagueId),
-          columns: {
-            ownerId: true,
-          },
-        }),
-        tx
-          .select({ count: count() })
-          .from(matches)
-          .where(
-            and(
-              eq(matches.leagueId, leagueId),
-              or(
-                eq(matches.player1Id, playerId),
-                eq(matches.player2Id, playerId),
+      const [leagueData, playerLeagueMatchesCount, isPlayerInLeague] =
+        await Promise.all([
+          tx.query.leagues.findFirst({
+            where: eq(leagues.id, leagueId),
+            columns: {
+              ownerId: true,
+            },
+          }),
+          tx
+            .select({ count: count() })
+            .from(matches)
+            .where(
+              and(
+                eq(matches.leagueId, leagueId),
+                or(
+                  eq(matches.player1Id, playerId),
+                  eq(matches.player2Id, playerId),
+                ),
               ),
-            ),
-          )
-          .then((result) => result[0]?.count ?? 0),
-      ]);
+            )
+            .then((result) => result[0]?.count ?? 0),
+          tx.query.playersToLeagues
+            .findFirst({
+              where: and(
+                eq(playersToLeagues.leagueId, leagueId),
+                eq(playersToLeagues.playerId, playerId),
+              ),
+            })
+            .then((result) => !!result),
+        ]);
 
       if (!leagueData) {
         return commandError(`League not found: ${leagueId}`);
@@ -54,6 +63,10 @@ export const removePlayerFromLeagueCommand = defineCommand(
         return commandError(
           `Cannot remove player from league that has played some matches: ${leagueId}. Please delete all their matches first.`,
         );
+      }
+
+      if (!isPlayerInLeague) {
+        return commandError(`Player ${playerId} is not in league ${leagueId}.`);
       }
 
       return commandSuccess([
