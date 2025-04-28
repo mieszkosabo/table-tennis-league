@@ -20,12 +20,12 @@ export type Event =
       };
     }>
   | BaseEvent<{ type: "LeagueJoined"; data: null }>
-  | {
+  | BaseEvent<{
       type: "PlayerRemovedFromLeague";
       data: {
         removedPlayerId: string;
       };
-    }
+    }>
   | BaseEvent<{
       type: "LeagueOwnershipTransferred";
       data: {

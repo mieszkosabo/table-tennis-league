@@ -123,7 +123,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
       - [x] `deleteLeague`
       - [x] `updateLeagueProperties`
       - [x] `joinLeague`
-      - [ ] `removePlayerFromLeague`
+      - [x] `removePlayerFromLeague`
       - [ ] `transferLeagueOwnership`
     - Match
       - [ ] `recordMatch` !
@@ -138,7 +138,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
   - Other
     - [ ] save events to database
     - [ ] activity feed
-    - [ ] use dataloader in event processing
+    - [ ] use dataloader/cache in event processing
 - [ ] Tests
   - [ ] testcontainers
 - [x] add avatars to tables

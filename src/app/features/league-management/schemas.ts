@@ -31,3 +31,13 @@ export const joinLeagueSchema = z.object({
 export const deleteLeagueSchema = z.object({
   leagueId: z.string().uuid(),
 });
+
+export const removePlayerFromLeagueSchema = z.object({
+  leagueId: z.string().uuid(),
+  playerId: z.string().uuid(),
+});
+
+export const transferLeagueOwnershipSchema = z.object({
+  leagueId: z.string().uuid(),
+  newOwnerId: z.string().uuid(),
+});
