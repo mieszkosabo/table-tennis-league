@@ -120,7 +120,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
   - Commands:
     - League
       - [x] `createLeague`
-      - [ ] `deleteLeague`
+      - [x] `deleteLeague`
       - [x] `updateLeagueProperties`
       - [x] `joinLeague`
       - [ ] `removePlayerFromLeague`

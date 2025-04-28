@@ -27,3 +27,7 @@ export const editLeagueSchema = createLeagueSchema.extend({
 export const joinLeagueSchema = z.object({
   joinCode: z.string().min(1).max(255),
 });
+
+export const deleteLeagueSchema = z.object({
+  leagueId: z.string().uuid(),
+});
