@@ -12,6 +12,7 @@ import { getServerSession } from "next-auth";
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GithubProvider from "next-auth/providers/github";
+import GoogleProvider from "next-auth/providers/google";
 
 // we allow login in with just username for development purposes
 // to test the app with multiple users
@@ -32,6 +33,12 @@ export const authOptions = {
       ? GithubProvider({
           clientId: env.GITHUB_ID,
           clientSecret: env.GITHUB_SECRET,
+        })
+      : null,
+    env.GOOGLE_ID && env.GOOGLE_SECRET
+      ? GoogleProvider({
+          clientId: env.GOOGLE_ID,
+          clientSecret: env.GOOGLE_SECRET,
         })
       : null,
     process.env.NODE_ENV === "development"

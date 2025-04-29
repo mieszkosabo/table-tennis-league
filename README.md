@@ -146,7 +146,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
   - [x] matches
 - [x] works on mobile
 - [ ] show "odds" column
-- [ ] login with google
+- [x] login with google
 - [x] make sure the /join page works for non-logged in users (i.e. they get redirected to the login page and then to the join page after and just not the home page)
 - [ ] "Today" works both as a past date and a future date depending whether the match has set winner or not
 
