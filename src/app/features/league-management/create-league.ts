@@ -1,6 +1,7 @@
 import { createLeagueSchema } from "@/app/features/league-management/schemas";
 import { leagues, playerStats, playersToLeagues } from "@/db/schema";
 import {
+  commandSuccess,
   defineCommand,
   defineModelUpdateFunction,
 } from "@/lib/event-sourcing/lib";
@@ -11,24 +12,21 @@ export const createLeagueCommand = defineCommand("createLeague", {
   runCommand: (input, ctx) => {
     // no additional validation needed
 
-    return {
-      type: "success",
-      events: [
-        {
-          type: "LeagueCreated",
-          eventId: uuid(),
-          actorId: ctx.actorId,
-          aggregateId: uuid(),
-          aggregateType: "league",
-          createdAt: new Date(),
-          data: {
-            leagueName: input.name,
-            description: input.description,
-            startingElo: input.startingElo,
-          },
+    return commandSuccess([
+      {
+        type: "LeagueCreated",
+        eventId: uuid(),
+        actorId: ctx.actorId,
+        aggregateId: uuid(),
+        aggregateType: "league",
+        createdAt: new Date(),
+        data: {
+          leagueName: input.name,
+          description: input.description,
+          startingElo: input.startingElo,
         },
-      ],
-    };
+      },
+    ]);
   },
 });
 

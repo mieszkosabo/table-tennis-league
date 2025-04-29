@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import {
   type AddMatchFormSchema,
   addMatchFormSchema,
-} from "@/app/features/matches/add-match/schema";
+} from "@/app/features/matches/schemas";
 import {
   PlayersSelector,
   type PlayersSelectorProps,

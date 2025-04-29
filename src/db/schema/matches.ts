@@ -32,6 +32,7 @@ export const matches = pgTable(
     player2Elo: integer("player2_elo").notNull(),
     winner: text("winner").references(() => users.id, { onDelete: "set null" }),
     score: json("score"),
+    description: text("description"),
     date: timestamp("date", { mode: "date" }).notNull(),
     createdAt: timestamp("created_at", { mode: "date" }).notNull(),
     updatedAt: timestamp("updated_at", { mode: "date" }).notNull(),

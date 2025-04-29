@@ -6,7 +6,7 @@ const base = z.object({
   player1Id: z.string().min(1),
   player2Id: z.string().min(1),
   winner: z.string().optional(),
-  score: z.string().optional(),
+  description: z.string().max(255).optional(),
 });
 
 const refine = (data: z.infer<typeof base>, ctx: RefinementCtx) => {
@@ -32,6 +32,16 @@ const refine = (data: z.infer<typeof base>, ctx: RefinementCtx) => {
       message: "You can't select a winner for future matches",
       path: ["winner"],
     });
+  }
+
+  if (data.winner) {
+    if (data.winner !== data.player1Id && data.winner !== data.player2Id) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Winner must be one of the players",
+        path: ["winner"],
+      });
+    }
   }
 };
 

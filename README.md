@@ -76,7 +76,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - owner
   - [x] edit league (name, starting elo, description, etc)
   - [ ] delete league (for now, only if there are no matches in it) 🐙
-  - [ ] remove player from league (???) 🐙
+  - [ ] remove player from league (for now, only if they didn't play any matches) 🐙
   - [x] add match to league
   - [ ] remove or edit match from league #EditingMatches 🐙
   - [ ] transfer ownership
@@ -124,10 +124,10 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
       - [x] `updateLeagueProperties`
       - [x] `joinLeague`
       - [x] `removePlayerFromLeague`
-      - [ ] `transferLeagueOwnership`
+      - [x] `transferLeagueOwnership`
     - Match
-      - [ ] `recordMatch` !
-      - [ ] `scheduleMatch` !
+      - [x] `recordMatch`
+      - [x] `scheduleMatch`
       - [ ] `editMatch`
       - [ ] `deleteMatch`
       - [ ] `setMatchWinner`
@@ -136,7 +136,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
     - User
       - [ ] `updateUserDefaultDisplayName`
   - Other
-    - [ ] save events to database
+    - [x] save events to database
     - [ ] activity feed
     - [ ] use dataloader/cache in event processing
 - [ ] Tests
@@ -148,3 +148,8 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [ ] show "odds" column
 - [ ] login with google
 - [x] make sure the /join page works for non-logged in users (i.e. they get redirected to the login page and then to the join page after and just not the home page)
+- [ ] "Today" works both as a past date and a future date depending whether the match has set winner or not
+
+## Bugs
+
+- [ ] explicitly setting the match date for today doesn't work since the form thinks it in the future

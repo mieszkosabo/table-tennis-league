@@ -37,6 +37,7 @@ export type Event =
   | BaseEvent<{
       type: "MatchRecorded";
       data: {
+        leagueId: string;
         player1Id: string;
         player2Id: string;
         winnerId: string;
@@ -47,6 +48,7 @@ export type Event =
   | BaseEvent<{
       type: "MatchScheduled";
       data: {
+        leagueId: string;
         player1Id: string;
         player2Id: string;
         matchDate: Date;

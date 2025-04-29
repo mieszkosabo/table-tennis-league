@@ -1,0 +1,1 @@
+ALTER TABLE "match" ADD COLUMN "description" text;
