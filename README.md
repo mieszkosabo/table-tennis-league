@@ -98,10 +98,10 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
   - [x] avatar
   - [x] name
   - [x] logout
-- [ ] schedule a match with another player from player ranking via action 🐙
+- [ ] schedule a match with another player from player ranking via action 🐙 🐗
   - [x] above all matches there's a list of scheduled matches with dates of course
-  - [ ] if a match is overdue the date is red
-  - [ ] if a match is scheduled for today the date is green
+  - [x] if a match is overdue the date is red
+  - [x] if a match is scheduled for today the date is green
   - [ ] there's a button to input the result of the match
   - [ ] if someone adds a new match with players that have a scheduled match (on the same day), the scheduled match is removed
 - League creation
@@ -116,7 +116,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
   - [ ] separate table for statuses and update on read
 - [ ] Handle case where two players have the same name 🐙
 - [ ] When two leagues have the same name the league selector acts weird 🐙
-- [ ] Event sourcing for mutations
+- [x] Event sourcing for mutations
   - Commands:
     - League
       - [x] `createLeague`
@@ -148,8 +148,8 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [ ] show "odds" column
 - [x] login with google
 - [x] make sure the /join page works for non-logged in users (i.e. they get redirected to the login page and then to the join page after and just not the home page)
-- [ ] "Today" works both as a past date and a future date depending whether the match has set winner or not
+- [x] "Today" works both as a past date and a future date depending whether the match has set winner or not
 
 ## Bugs
 
-- [ ] explicitly setting the match date for today doesn't work since the form thinks it in the future
+- [x] explicitly setting the match date for today doesn't work since the form thinks it in the future

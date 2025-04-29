@@ -24,8 +24,8 @@ export const leagues = pgTable(
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
     name: text("name").notNull(),
-    createdAt: timestamp("created_at", { mode: "date" }),
-    updatedAt: timestamp("updated_at", { mode: "date" }),
+    createdAt: timestamp("created_at", { mode: "date", withTimezone: true }),
+    updatedAt: timestamp("updated_at", { mode: "date", withTimezone: true }),
     ownerId: text("owner_id").references(() => users.id, {
       onDelete: "set null",
     }),
@@ -61,7 +61,7 @@ export const playersToLeagues = pgTable(
     leagueId: uuid("league_id")
       .notNull()
       .references(() => leagues.id),
-    joinedAt: timestamp("joined_at", { mode: "date" }),
+    joinedAt: timestamp("joined_at", { mode: "date", withTimezone: true }),
   },
   (t) => [
     primaryKey({ columns: [t.playerId, t.leagueId] }),

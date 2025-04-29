@@ -7,5 +7,5 @@ export const events = pgTable("event", {
   actorId: text("actor_id").notNull(),
   aggregateId: text("aggregate_id").notNull(),
   aggregateType: text("aggregate_type").notNull(),
-  createdAt: timestamp("created_at", { mode: "date" }),
+  createdAt: timestamp("created_at", { mode: "date", withTimezone: true }),
 });

@@ -27,7 +27,7 @@ async function getData(leagueId: string): Promise<MatchesData[]> {
         email: player2Table.email,
         image: player2Table.image,
       },
-      matchDate: matches.createdAt,
+      matchDate: matches.date,
       player1OldElo: matches.player1Elo,
       player2OldElo: matches.player2Elo,
     })

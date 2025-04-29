@@ -146,8 +146,18 @@ function AddMatchForm({
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
+                    weekStartsOn={1}
                     selected={field.value}
-                    onSelect={field.onChange}
+                    onSelect={(val) => {
+                      // "unclicking" a date make it look like today is selected
+                      // but in this handler the value is undefined, so we need to
+                      // match this behavior here as well explicitly.
+                      if (!val) {
+                        field.onChange(new Date());
+                      } else {
+                        field.onChange(val);
+                      }
+                    }}
                     disabled={(date) => date < new Date("1900-01-01")}
                     initialFocus
                   />

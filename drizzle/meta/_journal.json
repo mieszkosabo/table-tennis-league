@@ -71,6 +71,20 @@
       "when": 1745824412023,
       "tag": "0009_tough_spectrum",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1745911374273,
+      "tag": "0010_black_night_nurse",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1745912526679,
+      "tag": "0011_stiff_shatterstar",
+      "breakpoints": true
     }
   ]
 }

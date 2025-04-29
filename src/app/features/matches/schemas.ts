@@ -1,4 +1,10 @@
-import { endOfToday, isAfter, isBefore, startOfTomorrow } from "date-fns";
+import {
+  endOfToday,
+  isAfter,
+  isBefore,
+  isToday,
+  startOfTomorrow,
+} from "date-fns";
 import { type RefinementCtx, z } from "zod";
 
 const base = z.object({
@@ -18,6 +24,23 @@ const refine = (data: z.infer<typeof base>, ctx: RefinementCtx) => {
     });
   }
 
+  if (data.winner) {
+    if (data.winner !== data.player1Id && data.winner !== data.player2Id) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Winner must be one of the players",
+        path: ["winner"],
+      });
+    }
+  }
+
+  if (isToday(data.date)) {
+    // If the match is today, we don't need to check if the winner is set
+    // -> if the winner is set then we'll treat the match as finished
+    // -> if the winner is not set then we'll treat the match as scheduled with today's "due date"
+    return;
+  }
+
   if (!data.winner && isBefore(data.date, startOfTomorrow())) {
     ctx.addIssue({
       code: "custom",
@@ -32,16 +55,6 @@ const refine = (data: z.infer<typeof base>, ctx: RefinementCtx) => {
       message: "You can't select a winner for future matches",
       path: ["winner"],
     });
-  }
-
-  if (data.winner) {
-    if (data.winner !== data.player1Id && data.winner !== data.player2Id) {
-      ctx.addIssue({
-        code: "custom",
-        message: "Winner must be one of the players",
-        path: ["winner"],
-      });
-    }
   }
 };
 

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
-import { format, isFuture } from "date-fns";
+import { format, isFuture, isPast, isToday } from "date-fns";
 import { formatDistanceToNowStrict } from "date-fns";
 
 export type MatchesData = {
@@ -25,22 +25,40 @@ export const columns: ColumnDef<MatchesData>[] = [
   {
     accessorKey: "matchDate",
     header: "Match Date",
-    cell: ({ row }) => (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger>
-            {formatDistanceToNowStrict(row.original.matchDate, {
-              addSuffix: true,
-              unit: isFuture(row.original.matchDate) ? "day" : undefined,
-              roundingMethod: "ceil",
-            })}
-          </TooltipTrigger>
-          <TooltipContent>
-            <span> {format(row.original.matchDate, "PPP")}</span>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    ),
+    cell: ({ row }) => {
+      const isScheduledMatch =
+        !row.original.player1.isWinner && !row.original.player2.isWinner;
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              {isScheduledMatch && isToday(row.original.matchDate) ? (
+                <span className="text-green-700">Today</span>
+              ) : (
+                <span
+                  className={cn(
+                    isScheduledMatch &&
+                      isPast(row.original.matchDate) &&
+                      "text-red-700",
+                  )}
+                >
+                  {formatDistanceToNowStrict(row.original.matchDate, {
+                    addSuffix: true,
+                    unit: isScheduledMatch ? "day" : undefined,
+                    roundingMethod: isFuture(row.original.matchDate)
+                      ? "ceil"
+                      : "floor",
+                  })}
+                </span>
+              )}
+            </TooltipTrigger>
+            <TooltipContent>
+              <span> {format(row.original.matchDate, "PPP")}</span>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    },
   },
   {
     accessorKey: "player1",
