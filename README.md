@@ -57,7 +57,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [x] eslint absolute paths rule
 - [x] eslint typescript rules
 - [x] formatting with Biome
-- [ ] "lock" more specific versions of dependencies
+- [x] "lock" more specific versions of dependencies
 - [ ] setup CI/CD pipeline
 - [x] setup for local development with docker
 
