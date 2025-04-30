@@ -1,5 +1,5 @@
 import { deleteLeagueSchema } from "@/app/features/league-management/schemas";
-import { leagues, matches } from "@/db/schema";
+import { leagues, matches, playerStats, playersToLeagues } from "@/db/schema";
 import {
   commandError,
   commandSuccess,
@@ -64,6 +64,18 @@ defineModelUpdateFunction({
     const { tx } = ctx;
     const { aggregateId: leagueId } = event;
 
+    // first remove all players
+    await Promise.all([
+      tx
+        .delete(playersToLeagues)
+        .where(eq(playersToLeagues.leagueId, leagueId)),
+      tx.delete(playerStats).where(eq(playerStats.leagueId, leagueId)),
+    ]);
+
+    // then the league itself
     await tx.delete(leagues).where(eq(leagues.id, leagueId));
+
+    // one can remove league only if there aren't any matches in it, so no need to
+    // remove matches here
   },
 });

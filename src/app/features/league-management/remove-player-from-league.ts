@@ -59,6 +59,12 @@ export const removePlayerFromLeagueCommand = defineCommand(
         );
       }
 
+      if (leagueData.ownerId === playerId) {
+        return commandError(
+          "League owner cannot be removed from the league. Please transfer ownership first.",
+        );
+      }
+
       if (playerLeagueMatchesCount > 0) {
         return commandError(
           `Cannot remove player from league that has played some matches: ${leagueId}. Please delete all their matches first.`,

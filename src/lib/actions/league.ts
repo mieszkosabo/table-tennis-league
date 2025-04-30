@@ -1,11 +1,13 @@
 "use server";
 
 import { createLeagueCommand } from "@/app/features/league-management/create-league";
+import { deleteLeagueCommand } from "@/app/features/league-management/delete-league";
 import { editLeagueCommand } from "@/app/features/league-management/edit-league";
 import { joinLeagueCommand } from "@/app/features/league-management/join-league";
 import { removePlayerFromLeagueCommand } from "@/app/features/league-management/remove-player-from-league";
 import {
   createLeagueSchema,
+  deleteLeagueSchema,
   editLeagueSchema,
   joinLeagueSchema,
   removePlayerFromLeagueSchema,
@@ -14,6 +16,7 @@ import { db } from "@/db/db";
 import { authActionClient } from "@/lib/actions/safe-action";
 import { startProcessingEvents } from "@/lib/event-sourcing/lib";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export const createLeague = authActionClient
   .schema(createLeagueSchema)
@@ -103,5 +106,28 @@ export const removePlayerFromLeague = authActionClient
     const leagueId = result.events[0].aggregateId;
 
     revalidatePath(`/leagues/${leagueId}`);
+    return { leagueId };
+  });
+
+export const deleteLeague = authActionClient
+  .schema(deleteLeagueSchema)
+  .action(async ({ parsedInput, ctx: { user } }) => {
+    const result = await db.transaction(async (tx) =>
+      startProcessingEvents(
+        {
+          tx,
+          actorId: user.id,
+        },
+        (ctx) => deleteLeagueCommand(parsedInput, ctx),
+      ),
+    );
+
+    if (result.type === "error") {
+      throw result.error;
+    }
+
+    const leagueId = result.events[0].aggregateId;
+
+    redirect("/");
     return { leagueId };
   });

@@ -72,19 +72,19 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
   - [x] show league description
   - [x] show players in league with their stats
   - [x] show matches in league
-  - [ ] pagination for matches and players
+  - [ ] pagination for matches and players 🐙
 - owner
   - [x] edit league (name, starting elo, description, etc)
-  - [ ] delete league (for now, only if there are no matches in it) 🐙
-  - [x] remove player from league (for now, only if they didn't play any matches) 🐙
+  - [x] delete league (for now, only if there are no matches in it)
+  - [x] remove player from league (for now, only if they didn't play any matches)
   - [x] add match to league
   - [ ] remove or edit match from league #EditingMatches 🐙
-  - [ ] transfer ownership
+  - [ ] transfer ownership [just ui is needed, backend is done]
 - [ ] claim league ownership if owner is deleted
 - [x] add matches 🐙
   - [x] Player1 is prefilled with the user that is logged in
   - [ ] update checkpoint
-- [ ] leave league if no matches with other players, and if not a owner 🐙
+- [x] leave league if no matches with other players, and if not a owner
 - [ ] edit matches #EditingMatches 🐙
 - [x] redirect to home page if user tries to open a league that doesn't exist or they don't have access to
 - [x] join league button in selector
@@ -98,11 +98,11 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
   - [x] avatar
   - [x] name
   - [x] logout
-- [ ] schedule a match with another player from player ranking via action 🐙 🐗
+- [x] schedule a match with another player from player ranking via action 🐙
   - [x] above all matches there's a list of scheduled matches with dates of course
   - [x] if a match is overdue the date is red
   - [x] if a match is scheduled for today the date is green
-  - [ ] there's a button to input the result of the match
+  - [ ] there's a button to input the result of the match 🐙
   - [ ] if someone adds a new match with players that have a scheduled match (on the same day), the scheduled match is removed
 - League creation
   - [x] starting elo in league creation (default to 1000)
@@ -115,7 +115,6 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
   - [ ] 💪 if broke someone's winning streak
   - [ ] separate table for statuses and update on read
 - [ ] Handle case where two players have the same name 🐙
-- [ ] When two leagues have the same name the league selector acts weird 🐙
 - [x] Event sourcing for mutations
   - Commands:
     - League
@@ -128,13 +127,13 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
     - Match
       - [x] `recordMatch`
       - [x] `scheduleMatch`
-      - [ ] `editMatch`
-      - [ ] `deleteMatch`
-      - [ ] `setMatchWinner`
+      - [ ] `editMatch` 🐙
+      - [ ] `deleteMatch` 🐙
+      - [ ] `setMatchWinner` 🐙
     - Player
-      - [ ] `updatePlayerDisplayName`
+      - [ ] `updatePlayerDisplayName` 🐙
     - User
-      - [ ] `updateUserDefaultDisplayName`
+      - [ ] `updateUserDefaultDisplayName` 🐙
   - Other
     - [x] save events to database
     - [ ] activity feed
@@ -152,4 +151,5 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Bugs
 
+- [ ] When two leagues have the same name the league selector acts weird 🐙
 - [x] explicitly setting the match date for today doesn't work since the form thinks it in the future
