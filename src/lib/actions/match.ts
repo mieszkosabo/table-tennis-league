@@ -21,7 +21,7 @@ export const addMatch = authActionClient
     );
 
     if (result.type === "error") {
-      throw new Error(result.error.message);
+      throw result.error;
     }
 
     const leagueId = result.events[0].data.leagueId;

@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
+import { format, isPast, isToday } from "date-fns";
 import { useAction } from "next-safe-action/hooks";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -48,6 +48,12 @@ export interface CreateMatchButtonProps {
   players: PlayersSelectorProps["players"];
   leagueId: string;
   userId: string;
+  /**
+   * If provided, this form will be used only to schedule a future match.
+   */
+  forFuture?: {
+    opponentId: string;
+  };
 }
 
 export const AddMatchButton = ({
@@ -55,6 +61,7 @@ export const AddMatchButton = ({
   players,
   leagueId,
   userId,
+  forFuture,
 }: CreateMatchButtonProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -73,10 +80,18 @@ export const AddMatchButton = ({
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <Button {...buttonProps}>
-          <PlusIcon />
-          Add match
-        </Button>
+        <Button
+          // we use `children` prop so that ...buttonProps can
+          // override it as well.
+          // eslint-disable-next-line react/no-children-prop
+          children={
+            <>
+              <PlusIcon />
+              Add match
+            </>
+          }
+          {...buttonProps}
+        />
       </DialogTrigger>
       <DialogContent
         onInteractOutside={(e) => {
@@ -97,6 +112,7 @@ export const AddMatchButton = ({
           }}
           isPending={isPending}
           players={players}
+          forFuture={forFuture}
         />
       </DialogContent>
     </Dialog>
@@ -108,17 +124,26 @@ function AddMatchForm({
   isPending,
   players,
   userId,
+  forFuture,
 }: {
   onSubmit: (values: AddMatchFormSchema) => void;
   isPending?: boolean;
   players: PlayersSelectorProps["players"];
   userId: string;
+  /**
+   * If provided, this form will be used only to schedule a future match.
+   */
+  forFuture?: {
+    opponentId: string;
+  };
 }) {
+  const isForFuture = !!forFuture;
   const form = useForm<AddMatchFormSchema>({
     resolver: zodResolver(addMatchFormSchema),
     defaultValues: {
       date: new Date(),
       player1Id: userId,
+      player2Id: forFuture?.opponentId ?? undefined,
     },
   });
 
@@ -158,15 +183,21 @@ function AddMatchForm({
                         field.onChange(val);
                       }
                     }}
-                    disabled={(date) => date < new Date("1900-01-01")}
+                    disabled={(date) =>
+                      isForFuture
+                        ? isPast(date) && !isToday(date)
+                        : date < new Date("1900-01-01")
+                    }
                     initialFocus
                   />
                 </PopoverContent>
               </Popover>
-              <FormDescription>
-                Date on which the match took place.
-                <br /> You can pick future date to schedule a match.
-              </FormDescription>
+              {!isForFuture && (
+                <FormDescription>
+                  Date on which the match took place.
+                  <br /> You can pick future date to schedule a match.
+                </FormDescription>
+              )}
               <FormMessage />
             </FormItem>
           )}
@@ -181,6 +212,7 @@ function AddMatchForm({
               <FormLabel>Player 1</FormLabel>
               <FormControl>
                 <PlayersSelector
+                  disabled={isForFuture}
                   players={players.filter(
                     (player) => player.id !== form.watch("player2Id"),
                   )}
@@ -207,6 +239,7 @@ function AddMatchForm({
               <FormLabel>Player 2</FormLabel>
               <FormControl>
                 <PlayersSelector
+                  disabled={isForFuture}
                   players={players.filter(
                     (player) => player.id !== form.watch("player1Id"),
                   )}
@@ -224,38 +257,41 @@ function AddMatchForm({
           )}
         />
 
-        <FormField
-          disabled={isPending}
-          control={form.control}
-          name="winner"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>
-                Winner{" "}
-                <span className="dark:text-slate-400 text-slate-500">
-                  (optional)
-                </span>
-              </FormLabel>
-              <FormControl>
-                <PlayersSelector
-                  players={[form.watch("player1Id"), form.watch("player2Id")]
-                    .map((id) =>
-                      !id ? null : players.find((player) => player.id === id),
-                    )
-                    .filter((player) => player != null)}
-                  onChange={(value) => {
-                    field.onChange(value?.id);
-                  }}
-                  selectedPlayer={
-                    players.find((player) => player.id === field.value) ?? null
-                  }
-                />
-              </FormControl>
+        {!isForFuture && (
+          <FormField
+            disabled={isPending}
+            control={form.control}
+            name="winner"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>
+                  Winner{" "}
+                  <span className="dark:text-slate-400 text-slate-500">
+                    (optional)
+                  </span>
+                </FormLabel>
+                <FormControl>
+                  <PlayersSelector
+                    players={[form.watch("player1Id"), form.watch("player2Id")]
+                      .map((id) =>
+                        !id ? null : players.find((player) => player.id === id),
+                      )
+                      .filter((player) => player != null)}
+                    onChange={(value) => {
+                      field.onChange(value?.id);
+                    }}
+                    selectedPlayer={
+                      players.find((player) => player.id === field.value) ??
+                      null
+                    }
+                  />
+                </FormControl>
 
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <HStack justify="end">
           <Button disabled={isPending} type="submit">

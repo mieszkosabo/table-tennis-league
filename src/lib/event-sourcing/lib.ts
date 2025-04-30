@@ -5,11 +5,9 @@ import type { z } from "zod";
 
 export const commandError = (
   message: string,
-): { type: "error"; error: { message: string } } => ({
+): { type: "error"; error: AppError } => ({
   type: "error",
-  error: {
-    message,
-  },
+  error: new AppError(message),
 });
 
 export const commandSuccess = <const Events extends Event[]>(
@@ -21,9 +19,12 @@ export const commandSuccess = <const Events extends Event[]>(
 
 export type ActorId = string;
 
-type AppError = {
-  message: string;
-};
+export class AppError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AppError";
+  }
+}
 
 type MaybePromise<T> = T | Promise<T>;
 

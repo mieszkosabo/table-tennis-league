@@ -30,12 +30,14 @@ export interface PlayersSelectorProps {
   players: Player[];
   selectedPlayer: Player | null;
   onChange: (player: Player | null) => void;
+  disabled?: boolean;
 }
 
 export const PlayersSelector = ({
   players,
   selectedPlayer,
   onChange,
+  disabled,
 }: PlayersSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -43,6 +45,7 @@ export const PlayersSelector = ({
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button
+          disabled={disabled}
           variant="outline"
           role="combobox"
           className="w-[200px] justify-between"

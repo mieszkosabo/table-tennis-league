@@ -76,7 +76,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - owner
   - [x] edit league (name, starting elo, description, etc)
   - [ ] delete league (for now, only if there are no matches in it) 🐙
-  - [ ] remove player from league (for now, only if they didn't play any matches) 🐙
+  - [x] remove player from league (for now, only if they didn't play any matches) 🐙
   - [x] add match to league
   - [ ] remove or edit match from league #EditingMatches 🐙
   - [ ] transfer ownership
