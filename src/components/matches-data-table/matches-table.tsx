@@ -1,4 +1,5 @@
-import { DataTable } from "@/components/data-table";
+import { DEFAULT_PAGE_SIZE } from "@/components/data-table/consts";
+import { DataTable } from "@/components/data-table/data-table";
 import {
   type MatchesData,
   columns,
@@ -6,63 +7,151 @@ import {
 import { VStack } from "@/components/ui/stack";
 import { db } from "@/db/db";
 import { matches, users } from "@/db/schema";
-import { aliasedTable, desc, eq } from "drizzle-orm";
+import {
+  aliasedTable,
+  and,
+  desc,
+  eq,
+  isNotNull,
+  isNull,
+  sql,
+} from "drizzle-orm";
 
-async function getData(leagueId: string): Promise<MatchesData[]> {
+async function getData({
+  leagueId,
+  scheduledMatchesPageIndex,
+  pastMatchesPageIndex,
+}: {
+  leagueId: string;
+  scheduledMatchesPageIndex: number;
+  pastMatchesPageIndex: number;
+}): Promise<{
+  scheduledMatches: {
+    data: MatchesData[];
+    totalCount: number;
+  };
+  pastMatches: {
+    data: MatchesData[];
+    totalCount: number;
+  };
+}> {
   const player1Table = aliasedTable(users, "player1");
   const player2Table = aliasedTable(users, "player2");
 
-  const data = await db
-    .select({
-      winner: matches.winner,
-      player1: {
-        id: matches.player1Id,
-        name: player1Table.name,
-        email: player1Table.email,
-        image: player1Table.image,
-      },
-      player2: {
-        id: matches.player2Id,
-        name: player2Table.name,
-        email: player2Table.email,
-        image: player2Table.image,
-      },
-      matchDate: matches.date,
-      player1OldElo: matches.player1Elo,
-      player2OldElo: matches.player2Elo,
-    })
-    .from(matches)
-    .where(eq(matches.leagueId, leagueId))
-    .leftJoin(player1Table, eq(matches.player1Id, player1Table.id))
-    .leftJoin(player2Table, eq(matches.player2Id, player2Table.id))
-    .orderBy(desc(matches.createdAt));
+  const [scheduledMatches, pastMatches] = await Promise.all([
+    db
+      .select({
+        winner: matches.winner,
+        player1: {
+          id: matches.player1Id,
+          name: player1Table.name,
+          email: player1Table.email,
+          image: player1Table.image,
+        },
+        player2: {
+          id: matches.player2Id,
+          name: player2Table.name,
+          email: player2Table.email,
+          image: player2Table.image,
+        },
+        matchDate: matches.date,
+        player1OldElo: matches.player1Elo,
+        player2OldElo: matches.player2Elo,
 
-  return data.map((match) => ({
-    ...match,
-    player1: {
-      ...match.player1,
-      name: match.player1.name ?? match.player1.email ?? "Unknown",
-      isWinner: match.winner === match.player1.id,
-      image: match.player1.image ?? undefined,
+        totalCount: sql<number>`count(*) over()`,
+      })
+      .from(matches)
+      .where(and(eq(matches.leagueId, leagueId), isNull(matches.winner)))
+      .leftJoin(player1Table, eq(matches.player1Id, player1Table.id))
+      .leftJoin(player2Table, eq(matches.player2Id, player2Table.id))
+      .orderBy(desc(matches.createdAt))
+      .limit(DEFAULT_PAGE_SIZE)
+      .offset(scheduledMatchesPageIndex * DEFAULT_PAGE_SIZE),
+
+    db
+      .select({
+        winner: matches.winner,
+        player1: {
+          id: matches.player1Id,
+          name: player1Table.name,
+          email: player1Table.email,
+          image: player1Table.image,
+        },
+        player2: {
+          id: matches.player2Id,
+          name: player2Table.name,
+          email: player2Table.email,
+          image: player2Table.image,
+        },
+        matchDate: matches.date,
+        player1OldElo: matches.player1Elo,
+        player2OldElo: matches.player2Elo,
+
+        totalCount: sql<number>`count(*) over()`,
+      })
+      .from(matches)
+      .where(and(eq(matches.leagueId, leagueId), isNotNull(matches.winner)))
+      .leftJoin(player1Table, eq(matches.player1Id, player1Table.id))
+      .leftJoin(player2Table, eq(matches.player2Id, player2Table.id))
+      .orderBy(desc(matches.createdAt))
+      .limit(DEFAULT_PAGE_SIZE)
+      .offset(pastMatchesPageIndex * DEFAULT_PAGE_SIZE),
+  ]);
+
+  return {
+    scheduledMatches: {
+      data: scheduledMatches.map((match) => ({
+        ...match,
+        player1: {
+          ...match.player1,
+          name: match.player1.name ?? match.player1.email ?? "Unknown",
+          isWinner: match.winner === match.player1.id,
+          image: match.player1.image ?? undefined,
+        },
+        player2: {
+          ...match.player2,
+          name: match.player2.name ?? match.player2.email ?? "Unknown",
+          isWinner: match.winner === match.player2.id,
+          image: match.player2.image ?? undefined,
+        },
+      })),
+      totalCount: scheduledMatches[0]?.totalCount ?? 0,
     },
-    player2: {
-      ...match.player2,
-      name: match.player2.name ?? match.player2.email ?? "Unknown",
-      isWinner: match.winner === match.player2.id,
-      image: match.player2.image ?? undefined,
+    pastMatches: {
+      data: pastMatches.map((match) => ({
+        ...match,
+        player1: {
+          ...match.player1,
+          name: match.player1.name ?? match.player1.email ?? "Unknown",
+          isWinner: match.winner === match.player1.id,
+          image: match.player1.image ?? undefined,
+        },
+        player2: {
+          ...match.player2,
+          name: match.player2.name ?? match.player2.email ?? "Unknown",
+          isWinner: match.winner === match.player2.id,
+          image: match.player2.image ?? undefined,
+        },
+      })),
+      totalCount: pastMatches[0]?.totalCount ?? 0,
     },
-  }));
+  };
 }
 
-export const MatchesDataTable = async ({ leagueId }: { leagueId: string }) => {
-  const data = await getData(leagueId);
-
-  const scheduledMatches = data.filter(
-    (match) => !match.player1.isWinner && !match.player2.isWinner,
-  );
-  const pastMatches = data.filter(
-    (match) => match.player1.isWinner || match.player2.isWinner,
-  );
+export const MatchesDataTable = async ({
+  leagueId,
+  scheduledMatchesPageIndex,
+  pastMatchesPageIndex,
+}: {
+  leagueId: string;
+  scheduledMatchesPageIndex: number;
+  pastMatchesPageIndex: number;
+}) => {
+  const { scheduledMatches, pastMatches } = await getData({
+    leagueId,
+    scheduledMatchesPageIndex,
+    pastMatchesPageIndex,
+  });
 
   return (
     <VStack className="gap-16">
@@ -73,7 +162,9 @@ export const MatchesDataTable = async ({ leagueId }: { leagueId: string }) => {
         <DataTable
           className="bg-slate-50 dark:bg-slate-950"
           columns={columns}
-          data={scheduledMatches}
+          data={scheduledMatches.data}
+          totalRowCount={scheduledMatches.totalCount}
+          paginationParam="scheduledMatchesPage"
         />
       </VStack>
 
@@ -81,7 +172,12 @@ export const MatchesDataTable = async ({ leagueId }: { leagueId: string }) => {
         <h2 className="text-3xl font-bold text-slate-700 dark:text-slate-100">
           Past matches
         </h2>
-        <DataTable columns={columns} data={pastMatches} />
+        <DataTable
+          columns={columns}
+          data={pastMatches.data}
+          totalRowCount={pastMatches.totalCount}
+          paginationParam="pastMatchesPage"
+        />
       </VStack>
     </VStack>
   );

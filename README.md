@@ -43,6 +43,16 @@ pnpm dev
 
 ```bash
 npx drizzle-kit generate
+
+# or
+pnpm db:generate
+```
+
+### Run migrations
+
+```bash
+# It will use "DATABASE_URL" env variable
+pnpm db:migrate
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
@@ -58,8 +68,10 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [x] eslint typescript rules
 - [x] formatting with Biome
 - [x] "lock" more specific versions of dependencies
-- [ ] setup CI/CD pipeline
+- [ ] setup CI for PRs
+  - [ ] prod db migration
 - [x] setup for local development with docker
+- [ ] open source
 
 ## project work
 
@@ -72,7 +84,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
   - [x] show league description
   - [x] show players in league with their stats
   - [x] show matches in league
-  - [ ] pagination for matches and players 🐙
+  - [x] pagination for matches and players 🐙
 - owner
   - [x] edit league (name, starting elo, description, etc)
   - [x] delete league (for now, only if there are no matches in it)
@@ -148,6 +160,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [x] login with google
 - [x] make sure the /join page works for non-logged in users (i.e. they get redirected to the login page and then to the join page after and just not the home page)
 - [x] "Today" works both as a past date and a future date depending whether the match has set winner or not
+- [ ] server-side sorting
 
 ## Bugs
 

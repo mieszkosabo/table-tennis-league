@@ -1,7 +1,7 @@
 "use client";
 
 import { AddMatchButton } from "@/components/add-match-button";
-import { DataTable } from "@/components/data-table";
+import { DataTable } from "@/components/data-table/data-table";
 import type { PlayersSelectorProps } from "@/components/players-selector/players-selector";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import { HStack } from "@/components/ui/stack";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 
+import { DEFAULT_PAGE_SIZE } from "@/components/data-table/consts";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,11 +49,16 @@ export const getColumns: (ctx: {
   currentUserId: string;
   players: PlayersSelectorProps["players"];
   isLeagueOwner: boolean;
+  pageIndex: number;
 }) => ColumnDef<RankingData>[] = (ctx) => [
   {
     accessorKey: "index",
     header: () => <div className="text-right">#</div>,
-    cell: ({ row }) => <div className="text-right">{row.index + 1}</div>,
+    cell: ({ row }) => (
+      <div className="text-right">
+        {ctx.pageIndex * DEFAULT_PAGE_SIZE + row.index + 1}
+      </div>
+    ),
   },
   {
     accessorKey: "playerName",
@@ -210,19 +216,24 @@ export const RankingTableWithColumns = ({
   players,
   isLeagueOwner,
   data,
+  totalCount,
+  pageIndex,
 }: {
   leagueId: string;
   currentUserId: string;
   players: PlayersSelectorProps["players"];
   isLeagueOwner: boolean;
   data: RankingData[];
+  totalCount: number;
+  pageIndex: number;
 }) => {
   const columns = getColumns({
     leagueId,
     currentUserId,
     players,
     isLeagueOwner: isLeagueOwner,
+    pageIndex,
   });
 
-  return <DataTable columns={columns} data={data} />;
+  return <DataTable columns={columns} data={data} totalRowCount={totalCount} />;
 };

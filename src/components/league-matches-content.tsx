@@ -1,5 +1,19 @@
 import { MatchesDataTable } from "@/components/matches-data-table/matches-table";
 
-export const LeagueMatchesContent = ({ leagueId }: { leagueId: string }) => {
-  return <MatchesDataTable leagueId={leagueId} />;
+export const LeagueMatchesContent = ({
+  leagueId,
+  scheduledMatchesPageIndex,
+  pastMatchesPageIndex,
+}: {
+  leagueId: string;
+  scheduledMatchesPageIndex: number;
+  pastMatchesPageIndex: number;
+}) => {
+  return (
+    <MatchesDataTable
+      leagueId={leagueId}
+      scheduledMatchesPageIndex={scheduledMatchesPageIndex}
+      pastMatchesPageIndex={pastMatchesPageIndex}
+    />
+  );
 };
