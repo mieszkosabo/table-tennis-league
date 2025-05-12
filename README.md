@@ -69,7 +69,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [x] formatting with Biome
 - [x] "lock" more specific versions of dependencies
 - [ ] setup CI for PRs
-  - [ ] prod db migration
+  - [x] prod db migration
 - [x] setup for local development with docker
 - [ ] open source
 

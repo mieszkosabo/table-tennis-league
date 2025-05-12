@@ -8,7 +8,7 @@
     "dev:new": "docker-compose down -v && pnpm dev",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "build": "next build",
+    "build": "npx drizzle-kit migrate && next build",
     "start": "next start",
     "check:lint": "next lint",
     "fix:lint": "next lint --fix",

@@ -89,7 +89,7 @@ export const leagueCheckpoints = pgTable(
     createdAtMatchId: uuid("created_at_match_id")
       .notNull()
       .references(() => matches.id),
-    eloMap: json("elo_map").notNull().default(serializeMap(new Map())),
+    eloMap: text("elo_map").notNull().default(serializeMap(new Map())),
   },
   (t) => [uniqueIndex("league_checkpoints_unique_idx").on(t.leagueId)],
 );

@@ -1,6 +1,17 @@
 import { addMatchSchema } from "@/app/features/matches/schemas";
-import { calculateNewElos } from "@/app/features/matches/utils";
-import { leagues, matches, playerStats, playersToLeagues } from "@/db/schema";
+import {
+  calculateNewElos,
+  deserializeEloMap,
+  serializeMap,
+} from "@/app/features/matches/utils";
+import {
+  leagueCheckpoints,
+  leagues,
+  matches,
+  playerStats,
+  playersToLeagues,
+} from "@/db/schema";
+import { env } from "@/env/server";
 import {
   commandError,
   commandSuccess,
@@ -8,7 +19,8 @@ import {
   defineModelUpdateFunction,
 } from "@/lib/event-sourcing/lib";
 import { uuid } from "@/lib/utils";
-import { and, eq, sql } from "drizzle-orm";
+import { isAfter, subDays } from "date-fns";
+import { and, asc, eq, gt, isNotNull, sql } from "drizzle-orm";
 
 export const addMatchCommand = defineCommand("addCommand", {
   inputSchema: addMatchSchema,
@@ -203,8 +215,119 @@ defineModelUpdateFunction({
           ),
         ),
     ]);
+  },
+});
 
-    // TODO: update checkpoints
+// TODO: add description field to the define Model update
+
+// potential checkpoint update
+defineModelUpdateFunction({
+  triggeringEvent: "MatchRecorded",
+  updateFn: async (event, ctx) => {
+    // 1. Find the league checkpoint for the league
+    // if it exists:
+    // check if it is "expired", i.e. it's more than GRACE_PERIOD + 2 weeks old
+    // if not, then finish
+    // if it is expired, then
+    // 1. load all matches from the checkpoint up to the latest match
+    // load the checkpoint's elo map to a variable
+    // for each match, update it:
+    // if the next match falls within the grace period, then
+    //   update the checkpoint with the new elo map and save it to the db
+    //   return;
+    // else
+    //  keep updating the elo map
+    // if checkpoint does not exist:
+    // 1. load all matches from the league
+    // do the same as above
+
+    // visualization:
+    // (- is a past match, x is checkpoint, g is match that is within the grace period)
+
+    //               checkpoint    grace period
+    // ------------------x------ggggggggggggggg
+    //
+    // we want to move it like this:
+    // ------------------------xggggggggggggggg
+
+    const checkpoint = await ctx.tx.query.leagueCheckpoints.findFirst({
+      where: eq(leagueCheckpoints.leagueId, event.data.leagueId),
+    });
+
+    const checkpointMatch = !checkpoint
+      ? null
+      : await ctx.tx.query.matches.findFirst({
+          where: eq(matches.id, checkpoint.createdAtMatchId),
+        });
+
+    const checkpointEloMap = checkpoint?.eloMap
+      ? deserializeEloMap(checkpoint.eloMap)
+      : new Map<string, number>();
+
+    const matchesToGoThrough = await ctx.tx.query.matches.findMany({
+      where: and(
+        // if there is a checkpoint, we want to go through all matches after it
+        // otherwise, we want to go through all matches
+        checkpointMatch ? gt(matches.date, checkpointMatch.date) : undefined,
+        eq(matches.leagueId, event.data.leagueId),
+        isNotNull(matches.winner),
+      ),
+      orderBy: asc(matches.date),
+      columns: {
+        id: true,
+        player1Elo: true,
+        player2Elo: true,
+        player1Id: true,
+        player2Id: true,
+        date: true,
+        winner: true,
+      },
+    });
+
+    const isWithinGracePeriod = (date: Date) =>
+      isAfter(date, subDays(new Date(), env.MATCH_EDITING_GRACE_PERIOD));
+
+    for (let i = 0; i < matchesToGoThrough.length - 1; i++) {
+      const player1Elo = matchesToGoThrough[i].player1Elo;
+      const player2Elo = matchesToGoThrough[i].player2Elo;
+      const player1Id = matchesToGoThrough[i].player1Id;
+      const player2Id = matchesToGoThrough[i].player2Id;
+      const matchDate = matchesToGoThrough[i].date;
+      const winner = matchesToGoThrough[i].winner;
+
+      if (isWithinGracePeriod(matchDate)) {
+        break;
+      }
+
+      const { player1NewElo, player2NewElo } = calculateNewElos({
+        player1Elo,
+        player2Elo,
+        player1Won: winner === player1Id,
+      });
+
+      checkpointEloMap.set(player1Id, player1NewElo);
+      checkpointEloMap.set(player2Id, player2NewElo);
+
+      if (isWithinGracePeriod(matchesToGoThrough[i + 1].date)) {
+        const newCheckpoint: typeof leagueCheckpoints.$inferInsert = {
+          leagueId: event.data.leagueId,
+          createdAtMatchId: matchesToGoThrough[i].id,
+          eloMap: serializeMap(checkpointEloMap),
+        };
+
+        await ctx.tx
+          .insert(leagueCheckpoints)
+          .values(newCheckpoint)
+          .onConflictDoUpdate({
+            target: leagueCheckpoints.leagueId,
+            set: {
+              ...newCheckpoint,
+            },
+          });
+
+        break;
+      }
+    }
   },
 });
 
