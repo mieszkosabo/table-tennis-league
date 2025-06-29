@@ -22,6 +22,8 @@ export const env = createEnv({
     GOOGLE_SECRET: IS_DEV
       ? nonEmptyStringSchema.optional()
       : nonEmptyStringSchema,
+
+    MATCH_EDITING_GRACE_PERIOD: z.number().int().optional().default(7),
   },
   experimental__runtimeEnv: process.env,
 });

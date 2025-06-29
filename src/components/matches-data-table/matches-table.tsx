@@ -1,8 +1,7 @@
 import { DEFAULT_PAGE_SIZE } from "@/components/data-table/consts";
-import { DataTable } from "@/components/data-table/data-table";
 import {
   type MatchesData,
-  columns,
+  MatchesTableWithColumns,
 } from "@/components/matches-data-table/columns";
 import { VStack } from "@/components/ui/stack";
 import { db } from "@/db/db";
@@ -41,6 +40,7 @@ async function getData({
   const [scheduledMatches, pastMatches] = await Promise.all([
     db
       .select({
+        matchId: matches.id,
         winner: matches.winner,
         player1: {
           id: matches.player1Id,
@@ -57,6 +57,8 @@ async function getData({
         matchDate: matches.date,
         player1OldElo: matches.player1Elo,
         player2OldElo: matches.player2Elo,
+        createdAt: matches.createdAt,
+        // description: matches.description,
 
         totalCount: sql<number>`count(*) over()`,
       })
@@ -70,6 +72,7 @@ async function getData({
 
     db
       .select({
+        matchId: matches.id,
         winner: matches.winner,
         player1: {
           id: matches.player1Id,
@@ -86,6 +89,8 @@ async function getData({
         matchDate: matches.date,
         player1OldElo: matches.player1Elo,
         player2OldElo: matches.player2Elo,
+        createdAt: matches.createdAt,
+        // description: matches.description,
 
         totalCount: sql<number>`count(*) over()`,
       })
@@ -159,11 +164,11 @@ export const MatchesDataTable = async ({
         <h2 className="text-3xl font-bold text-slate-700 dark:text-slate-100">
           Scheduled matches 🍿
         </h2>
-        <DataTable
-          className="bg-slate-50 dark:bg-slate-950"
-          columns={columns}
+        <MatchesTableWithColumns
+          leagueId={leagueId}
           data={scheduledMatches.data}
-          totalRowCount={scheduledMatches.totalCount}
+          totalCount={scheduledMatches.totalCount}
+          className="bg-slate-50 dark:bg-slate-950"
           paginationParam="scheduledMatchesPage"
         />
       </VStack>
@@ -172,10 +177,10 @@ export const MatchesDataTable = async ({
         <h2 className="text-3xl font-bold text-slate-700 dark:text-slate-100">
           Past matches
         </h2>
-        <DataTable
-          columns={columns}
+        <MatchesTableWithColumns
+          leagueId={leagueId}
           data={pastMatches.data}
-          totalRowCount={pastMatches.totalCount}
+          totalCount={pastMatches.totalCount}
           paginationParam="pastMatchesPage"
         />
       </VStack>

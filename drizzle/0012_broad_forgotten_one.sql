@@ -1,0 +1,1 @@
+ALTER TABLE "league_checkpoints" ALTER COLUMN "elo_map" SET DATA TYPE text;
