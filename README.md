@@ -71,7 +71,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [ ] setup CI for PRs
   - [x] prod db migration
 - [x] setup for local development with docker
-- [ ] open source
+- [x] open source
 
 ## project work
 
