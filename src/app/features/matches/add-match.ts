@@ -1,8 +1,9 @@
 import { addMatchSchema } from "@/app/features/matches/schemas";
 import {
   calculateNewElos,
-  deserializeEloMap,
-  serializeMap,
+  createEmptyPlayerStatsMap,
+  deserializePlayerStatsMap,
+  serializePlayerStatsMap,
 } from "@/app/features/matches/utils";
 import {
   leagueCheckpoints,
@@ -260,9 +261,9 @@ defineModelUpdateFunction({
           where: eq(matches.id, checkpoint.createdAtMatchId),
         });
 
-    const checkpointEloMap = checkpoint?.eloMap
-      ? deserializeEloMap(checkpoint.eloMap)
-      : new Map<string, number>();
+    const checkpointPlayerStatsMap = checkpoint?.playerStatsMap
+      ? deserializePlayerStatsMap(checkpoint.playerStatsMap)
+      : createEmptyPlayerStatsMap();
 
     const matchesToGoThrough = await ctx.tx.query.matches.findMany({
       where: and(
@@ -288,31 +289,54 @@ defineModelUpdateFunction({
       isAfter(date, subDays(new Date(), env.MATCH_EDITING_GRACE_PERIOD));
 
     for (let i = 0; i < matchesToGoThrough.length - 1; i++) {
-      const player1Elo = matchesToGoThrough[i].player1Elo;
-      const player2Elo = matchesToGoThrough[i].player2Elo;
-      const player1Id = matchesToGoThrough[i].player1Id;
-      const player2Id = matchesToGoThrough[i].player2Id;
-      const matchDate = matchesToGoThrough[i].date;
-      const winner = matchesToGoThrough[i].winner;
+      const match = matchesToGoThrough[i];
+      const player1Id = match.player1Id;
+      const player2Id = match.player2Id;
+      const matchDate = match.date;
+      const winner = match.winner;
 
       if (isWithinGracePeriod(matchDate)) {
         break;
       }
 
+      // Get current stats for both players
+      const player1Stats = checkpointPlayerStatsMap.get(player1Id) || {
+        elo: match.player1Elo,
+        wins: 0,
+        losses: 0,
+      };
+      const player2Stats = checkpointPlayerStatsMap.get(player2Id) || {
+        elo: match.player2Elo,
+        wins: 0,
+        losses: 0,
+      };
+
       const { player1NewElo, player2NewElo } = calculateNewElos({
-        player1Elo,
-        player2Elo,
+        player1Elo: player1Stats.elo,
+        player2Elo: player2Stats.elo,
         player1Won: winner === player1Id,
       });
 
-      checkpointEloMap.set(player1Id, player1NewElo);
-      checkpointEloMap.set(player2Id, player2NewElo);
+      // Update player stats
+      checkpointPlayerStatsMap.set(player1Id, {
+        elo: player1NewElo,
+        wins: winner === player1Id ? player1Stats.wins + 1 : player1Stats.wins,
+        losses:
+          winner === player2Id ? player1Stats.losses + 1 : player1Stats.losses,
+      });
+
+      checkpointPlayerStatsMap.set(player2Id, {
+        elo: player2NewElo,
+        wins: winner === player2Id ? player2Stats.wins + 1 : player2Stats.wins,
+        losses:
+          winner === player1Id ? player2Stats.losses + 1 : player2Stats.losses,
+      });
 
       if (isWithinGracePeriod(matchesToGoThrough[i + 1].date)) {
         const newCheckpoint: typeof leagueCheckpoints.$inferInsert = {
           leagueId: event.data.leagueId,
-          createdAtMatchId: matchesToGoThrough[i].id,
-          eloMap: serializeMap(checkpointEloMap),
+          createdAtMatchId: match.id,
+          playerStatsMap: serializePlayerStatsMap(checkpointPlayerStatsMap),
         };
 
         await ctx.tx

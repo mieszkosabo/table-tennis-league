@@ -1,7 +1,8 @@
 import { editMatchSchema } from "@/app/features/matches/schemas";
 import {
   calculateNewElos,
-  deserializeEloMap,
+  createEmptyPlayerStatsMap,
+  deserializePlayerStatsMap,
 } from "@/app/features/matches/utils";
 import type { Tx } from "@/db/db";
 import {
@@ -162,11 +163,11 @@ defineModelUpdateFunction({
       .where(eq(matches.id, matchId));
 
     // Recalculate ELOs for all affected players
-    await recalculateElosFromCheckpoint(leagueId, tx);
+    await recalculateStatsFromCheckpoint(leagueId, tx);
   },
 });
 
-async function recalculateElosFromCheckpoint(leagueId: string, tx: Tx) {
+async function recalculateStatsFromCheckpoint(leagueId: string, tx: Tx) {
   // Get the checkpoint for the league
   const checkpoint = await tx.query.leagueCheckpoints.findFirst({
     where: eq(leagueCheckpoints.leagueId, leagueId),
@@ -178,9 +179,9 @@ async function recalculateElosFromCheckpoint(leagueId: string, tx: Tx) {
         where: eq(matches.id, checkpoint.createdAtMatchId),
       });
 
-  const checkpointEloMap = checkpoint?.eloMap
-    ? deserializeEloMap(checkpoint.eloMap)
-    : new Map<string, number>();
+  const checkpointPlayerStatsMap = checkpoint?.playerStatsMap
+    ? deserializePlayerStatsMap(checkpoint.playerStatsMap)
+    : createEmptyPlayerStatsMap();
 
   // Get all matches from checkpoint forward
   const matchesToProcess = await tx.query.matches.findMany({
@@ -201,39 +202,64 @@ async function recalculateElosFromCheckpoint(leagueId: string, tx: Tx) {
     },
   });
 
-  // Initialize current ELO map with checkpoint data
-  const currentEloMap = new Map(checkpointEloMap);
+  // Initialize current player stats map with checkpoint data
+  const currentPlayerStatsMap = new Map(checkpointPlayerStatsMap);
 
-  // Process each match and update ELOs
-  const playerUpdates = new Map<string, number>();
-
+  // Process each match and update complete player stats
   for (const match of matchesToProcess) {
-    const player1CurrentElo =
-      currentEloMap.get(match.player1Id) ?? match.player1Elo;
-    const player2CurrentElo =
-      currentEloMap.get(match.player2Id) ?? match.player2Elo;
+    const player1Stats = currentPlayerStatsMap.get(match.player1Id) || {
+      elo: match.player1Elo,
+      wins: 0,
+      losses: 0,
+    };
+    const player2Stats = currentPlayerStatsMap.get(match.player2Id) || {
+      elo: match.player2Elo,
+      wins: 0,
+      losses: 0,
+    };
 
     const { player1NewElo, player2NewElo } = calculateNewElos({
-      player1Elo: player1CurrentElo,
-      player2Elo: player2CurrentElo,
+      player1Elo: player1Stats.elo,
+      player2Elo: player2Stats.elo,
       player1Won: match.winner === match.player1Id,
     });
 
-    // Update the ELO map
-    currentEloMap.set(match.player1Id, player1NewElo);
-    currentEloMap.set(match.player2Id, player2NewElo);
+    // Update complete player stats
+    currentPlayerStatsMap.set(match.player1Id, {
+      elo: player1NewElo,
+      wins:
+        match.winner === match.player1Id
+          ? player1Stats.wins + 1
+          : player1Stats.wins,
+      losses:
+        match.winner === match.player2Id
+          ? player1Stats.losses + 1
+          : player1Stats.losses,
+    });
 
-    // Track which players need database updates
-    playerUpdates.set(match.player1Id, player1NewElo);
-    playerUpdates.set(match.player2Id, player2NewElo);
+    currentPlayerStatsMap.set(match.player2Id, {
+      elo: player2NewElo,
+      wins:
+        match.winner === match.player2Id
+          ? player2Stats.wins + 1
+          : player2Stats.wins,
+      losses:
+        match.winner === match.player1Id
+          ? player2Stats.losses + 1
+          : player2Stats.losses,
+    });
   }
 
   // Update player stats in the database concurrently
-  const updatePromises = Array.from(playerUpdates.entries()).map(
-    ([playerId, newElo]) =>
+  const updatePromises = Array.from(currentPlayerStatsMap.entries()).map(
+    ([playerId, stats]) =>
       tx
         .update(playerStats)
-        .set({ elo: newElo })
+        .set({
+          elo: stats.elo,
+          wins: stats.wins,
+          losses: stats.losses,
+        })
         .where(
           and(
             eq(playerStats.playerId, playerId),
@@ -243,7 +269,4 @@ async function recalculateElosFromCheckpoint(leagueId: string, tx: Tx) {
   );
 
   await Promise.all(updatePromises);
-
-  // Note: We don't update wins/losses here as they would need to be completely recalculated
-  // This is a limitation that could be addressed in a future iteration
 }

@@ -11,6 +11,24 @@ export const deserializeMap = <M extends Map<unknown, unknown>>(
 
 export const deserializeEloMap = deserializeMap<Map<string, number>>;
 
+export interface PlayerStatsSnapshot {
+  elo: number;
+  wins: number;
+  losses: number;
+}
+
+export type PlayerStatsMap = Map<string, PlayerStatsSnapshot>;
+
+export const serializePlayerStatsMap = (map: PlayerStatsMap): string =>
+  JSON.stringify(Object.fromEntries(map));
+
+export const deserializePlayerStatsMap = (serialized: string): PlayerStatsMap =>
+  new Map(
+    Object.entries(JSON.parse(serialized) as Record<string, PlayerStatsSnapshot>)
+  );
+
+export const createEmptyPlayerStatsMap = (): PlayerStatsMap => new Map();
+
 export interface EloCalculationInput {
   player1Elo: number;
   player2Elo: number;

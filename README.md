@@ -84,20 +84,20 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
   - [x] show league description
   - [x] show players in league with their stats
   - [x] show matches in league
-  - [x] pagination for matches and players 🐙
+  - [x] pagination for matches and players
 - owner
   - [x] edit league (name, starting elo, description, etc)
   - [x] delete league (for now, only if there are no matches in it)
   - [x] remove player from league (for now, only if they didn't play any matches)
   - [x] add match to league
-  - [ ] remove or edit match from league #EditingMatches 🐙
+  - [x] remove or edit match from league #EditingMatches 🐙
   - [ ] transfer ownership [just ui is needed, backend is done]
 - [ ] claim league ownership if owner is deleted
-- [x] add matches 🐙
+- [x] add matches
   - [x] Player1 is prefilled with the user that is logged in
-  - [ ] update checkpoint
+  - [x] update checkpoint
 - [x] leave league if no matches with other players, and if not a owner
-- [ ] edit matches #EditingMatches 🐙
+- [x] edit matches #EditingMatches
 - [x] redirect to home page if user tries to open a league that doesn't exist or they don't have access to
 - [x] join league button in selector
 - [x] create league button in selector
@@ -110,7 +110,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
   - [x] avatar
   - [x] name
   - [x] logout
-- [x] schedule a match with another player from player ranking via action 🐙
+- [x] schedule a match with another player from player ranking via action
   - [x] above all matches there's a list of scheduled matches with dates of course
   - [x] if a match is overdue the date is red
   - [x] if a match is scheduled for today the date is green
@@ -139,7 +139,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
     - Match
       - [x] `recordMatch`
       - [x] `scheduleMatch`
-      - [ ] `editMatch` 🐙
+      - [x] `editMatch`
       - [ ] `deleteMatch` 🐙
       - [ ] `setMatchWinner` 🐙
     - Player
@@ -164,5 +164,6 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Bugs
 
+- [ ] We should be able to add a new match for dates falling within GRACE_PERIOD and we need to recalculate stats after such match is inserted
 - [ ] When two leagues have the same name the league selector acts weird 🐙
 - [x] explicitly setting the match date for today doesn't work since the form thinks it in the future

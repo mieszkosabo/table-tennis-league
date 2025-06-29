@@ -1,4 +1,4 @@
-import { serializeMap } from "@/app/features/matches/utils";
+import { serializePlayerStatsMap, createEmptyPlayerStatsMap } from "@/app/features/matches/utils";
 import { leagues } from "@/db/schema/leagues";
 import { users } from "@/db/schema/users";
 import { relations } from "drizzle-orm";
@@ -89,7 +89,7 @@ export const leagueCheckpoints = pgTable(
     createdAtMatchId: uuid("created_at_match_id")
       .notNull()
       .references(() => matches.id),
-    eloMap: text("elo_map").notNull().default(serializeMap(new Map())),
+    playerStatsMap: text("player_stats_map").notNull().default(serializePlayerStatsMap(createEmptyPlayerStatsMap())),
   },
   (t) => [uniqueIndex("league_checkpoints_unique_idx").on(t.leagueId)],
 );
