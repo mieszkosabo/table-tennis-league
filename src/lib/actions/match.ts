@@ -3,7 +3,13 @@
 import { addMatchCommand } from "@/app/features/matches/add-match";
 import { deleteMatchCommand } from "@/app/features/matches/delete-match";
 import { editMatchCommand } from "@/app/features/matches/edit-match";
-import { addMatchSchema, deleteMatchSchema, editMatchSchema } from "@/app/features/matches/schemas";
+import {
+  addMatchSchema,
+  deleteMatchSchema,
+  editMatchSchema,
+  setMatchWinnerSchema,
+} from "@/app/features/matches/schemas";
+import { setMatchWinnerCommand } from "@/app/features/matches/set-match-winner";
 import { db } from "@/db/db";
 import { authActionClient } from "@/lib/actions/safe-action";
 import { startProcessingEvents } from "@/lib/event-sourcing/lib";
@@ -65,6 +71,29 @@ export const deleteMatch = authActionClient
           actorId: user.id,
         },
         (ctx) => deleteMatchCommand(parsedInput, ctx),
+      ),
+    );
+
+    if (result.type === "error") {
+      throw result.error;
+    }
+
+    const leagueId = parsedInput.leagueId;
+
+    revalidatePath(`/leagues/${leagueId}/matches`);
+    revalidatePath(`/leagues/${leagueId}/ranking`);
+  });
+
+export const setMatchWinner = authActionClient
+  .schema(setMatchWinnerSchema)
+  .action(async ({ parsedInput, ctx: { user } }) => {
+    const result = await db.transaction(async (tx) =>
+      startProcessingEvents(
+        {
+          tx,
+          actorId: user.id,
+        },
+        (ctx) => setMatchWinnerCommand(parsedInput, ctx),
       ),
     );
 

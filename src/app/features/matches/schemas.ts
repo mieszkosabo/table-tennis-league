@@ -80,8 +80,23 @@ export const deleteMatchSchema = z.object({
   leagueId: z.string().min(1),
 });
 
+export const setMatchWinnerSchema = z.object({
+  matchId: z.string().min(1),
+  leagueId: z.string().min(1),
+  winner: z.string().min(1), // Required for setting winner
+  date: z.date(),
+});
+
+export const setMatchWinnerFormSchema = base
+  .extend({
+    winner: z.string().min(1), // Required for setting winner
+  })
+  .superRefine(refine);
+
 export type AddMatchSchema = z.infer<typeof addMatchSchema>;
 export type AddMatchFormSchema = z.infer<typeof addMatchFormSchema>;
 export type EditMatchSchema = z.infer<typeof editMatchSchema>;
 export type EditMatchFormSchema = z.infer<typeof editMatchFormSchema>;
 export type DeleteMatchSchema = z.infer<typeof deleteMatchSchema>;
+export type SetMatchWinnerSchema = z.infer<typeof setMatchWinnerSchema>;
+export type SetMatchWinnerFormSchema = z.infer<typeof setMatchWinnerFormSchema>;

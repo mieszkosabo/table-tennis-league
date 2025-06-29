@@ -2,6 +2,7 @@
 
 import { DataTable } from "@/components/data-table/data-table";
 import { EditMatchDialog } from "@/components/edit-match-dialog";
+import { SetWinnerDialog } from "@/components/set-winner-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,7 +24,7 @@ import { cn } from "@/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format, isAfter, isFuture, isPast, isToday, subDays } from "date-fns";
 import { formatDistanceToNowStrict } from "date-fns";
-import { Edit, MoreHorizontal, Trash } from "lucide-react";
+import { Edit, MoreHorizontal, Trash, Trophy } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -126,6 +127,7 @@ const MatchActions = ({
   leagueId,
 }: { match: MatchesData; leagueId: string }) => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [setWinnerDialogOpen, setSetWinnerDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const gracePeriodEnd = subDays(
     new Date(),
@@ -192,6 +194,17 @@ const MatchActions = ({
               )}
             </Tooltip>
           </TooltipProvider>
+          
+          {!isCompletedMatch && (
+            <DropdownMenuItem
+              onClick={() => {
+                setSetWinnerDialogOpen(true);
+              }}
+            >
+              <Trophy className="mr-2 h-4 w-4" />
+              Set Winner
+            </DropdownMenuItem>
+          )}
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -218,6 +231,13 @@ const MatchActions = ({
         leagueId={leagueId}
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
+      />
+
+      <SetWinnerDialog
+        match={match}
+        leagueId={leagueId}
+        open={setWinnerDialogOpen}
+        onOpenChange={setSetWinnerDialogOpen}
       />
     </>
   );

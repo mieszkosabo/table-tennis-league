@@ -114,8 +114,8 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
   - [x] above all matches there's a list of scheduled matches with dates of course
   - [x] if a match is overdue the date is red
   - [x] if a match is scheduled for today the date is green
-  - [ ] there's a button to input the result of the match 🐙
-  - [ ] if someone adds a new match with players that have a scheduled match (on the same day), the scheduled match is removed
+  - [x] there's a button to input the result of the match
+  - [x] if someone adds a new match with players that have a scheduled match (on the same day), the scheduled match is removed
 - League creation
   - [x] starting elo in league creation (default to 1000)
   - [x] description (150 chars)
@@ -141,7 +141,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
       - [x] `scheduleMatch`
       - [x] `editMatch`
       - [x] `deleteMatch`
-      - [ ] `setMatchWinner` 🐙
+      - [x] `setMatchWinner` 🐙
     - Player
       - [ ] `updatePlayerDisplayName` 🐙
     - User

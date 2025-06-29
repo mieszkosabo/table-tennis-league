@@ -14,6 +14,7 @@ import {
   playersToLeagues,
 } from "@/db/schema";
 import { env } from "@/env/server";
+import type { Event } from "@/lib/event-sourcing/events";
 import {
   commandError,
   commandSuccess,
@@ -21,8 +22,8 @@ import {
   defineModelUpdateFunction,
 } from "@/lib/event-sourcing/lib";
 import { uuid } from "@/lib/utils";
-import { isAfter, subDays } from "date-fns";
-import { and, asc, desc, eq, gt, isNotNull, lt, or } from "drizzle-orm";
+import { isAfter, isSameDay, subDays } from "date-fns";
+import { and, asc, desc, eq, gt, isNotNull, isNull, lt, or } from "drizzle-orm";
 
 export const addMatchCommand = defineCommand("addMatch", {
   inputSchema: addMatchSchema,
@@ -87,8 +88,61 @@ export const addMatchCommand = defineCommand("addMatch", {
       );
     }
 
+    // If this is a completed match (has winner), check for conflicting scheduled matches
+    let conflictingMatchEvents: Extract<Event, { type: "MatchDeleted" }>[] = [];
+    if (winner) {
+      // Find all scheduled matches between the same players on the same date
+      const conflictingMatches = await tx.query.matches.findMany({
+        where: and(
+          eq(matches.leagueId, leagueId),
+          isNull(matches.winner), // Scheduled matches only
+          or(
+            // Same player order
+            and(
+              eq(matches.player1Id, player1Id),
+              eq(matches.player2Id, player2Id),
+            ),
+            // Swapped player order
+            and(
+              eq(matches.player1Id, player2Id),
+              eq(matches.player2Id, player1Id),
+            ),
+          ),
+        ),
+        columns: {
+          id: true,
+          date: true,
+          player1Id: true,
+          player2Id: true,
+        },
+      });
+
+      // Filter for matches on the same date
+      const sameDateConflicts = conflictingMatches.filter((match) =>
+        isSameDay(match.date, date),
+      );
+
+      // Create MatchDeleted events for conflicting scheduled matches
+      conflictingMatchEvents = sameDateConflicts.map((match) => ({
+        type: "MatchDeleted" as const,
+        eventId: uuid(),
+        actorId,
+        aggregateId: match.id,
+        aggregateType: "match" as const,
+        createdAt: new Date(),
+        data: {
+          leagueId,
+          isScheduled: true,
+          player1Id: match.player1Id,
+          player2Id: match.player2Id,
+          matchDate: match.date,
+        },
+      }));
+    }
+
     if (winner) {
       return commandSuccess([
+        ...conflictingMatchEvents,
         {
           type: "MatchRecorded",
           eventId: uuid(),

@@ -67,8 +67,20 @@ export type Event =
         matchDate: Date;
       };
     }>
-  | BaseEvent<{ type: "MatchDeleted"; data: null }>
-  | BaseEvent<{ type: "MatchWinnerSet"; data: { winnerId: string } }>
+  | BaseEvent<{
+      type: "MatchDeleted";
+      data: {
+        leagueId: string;
+        isScheduled: boolean;
+        player1Id: string;
+        player2Id: string;
+        matchDate: Date;
+      };
+    }>
+  | BaseEvent<{
+      type: "MatchWinnerSet";
+      data: { winnerId: string; date?: Date };
+    }>
 
   // Player events
   | BaseEvent<{

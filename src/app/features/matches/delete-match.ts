@@ -66,7 +66,13 @@ export const deleteMatchCommand = defineCommand("deleteMatch", {
         aggregateId: matchId,
         aggregateType: "match",
         createdAt: new Date(),
-        data: null,
+        data: {
+          leagueId,
+          isScheduled: !existingMatch.winner,
+          player1Id: existingMatch.player1Id,
+          player2Id: existingMatch.player2Id,
+          matchDate: existingMatch.date,
+        },
       },
     ]);
   },
