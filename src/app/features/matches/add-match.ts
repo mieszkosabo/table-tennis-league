@@ -22,7 +22,7 @@ import { uuid } from "@/lib/utils";
 import { isAfter, subDays } from "date-fns";
 import { and, asc, eq, gt, isNotNull, sql } from "drizzle-orm";
 
-export const addMatchCommand = defineCommand("addCommand", {
+export const addMatchCommand = defineCommand("addMatch", {
   inputSchema: addMatchSchema,
   runCommand: async (input, ctx) => {
     const { tx, actorId } = ctx;

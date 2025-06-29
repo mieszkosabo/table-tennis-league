@@ -58,9 +58,11 @@ export type Event =
   | BaseEvent<{
       type: "MatchEdited";
       data: {
+        matchId: string;
+        leagueId: string;
         player1Id: string;
         player2Id: string;
-        winnerId: string;
+        winnerId?: string;
         description?: string;
         matchDate: Date;
       };

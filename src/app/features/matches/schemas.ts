@@ -66,5 +66,16 @@ export const addMatchSchema = base
   })
   .superRefine(refine);
 
+export const editMatchSchema = base
+  .extend({
+    matchId: z.string().min(1),
+    leagueId: z.string().min(1),
+  })
+  .superRefine(refine);
+
+export const editMatchFormSchema = base.superRefine(refine);
+
 export type AddMatchSchema = z.infer<typeof addMatchSchema>;
 export type AddMatchFormSchema = z.infer<typeof addMatchFormSchema>;
+export type EditMatchSchema = z.infer<typeof editMatchSchema>;
+export type EditMatchFormSchema = z.infer<typeof editMatchFormSchema>;

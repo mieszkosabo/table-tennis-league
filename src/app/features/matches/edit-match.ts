@@ -1,0 +1,249 @@
+import { editMatchSchema } from "@/app/features/matches/schemas";
+import {
+  calculateNewElos,
+  deserializeEloMap,
+} from "@/app/features/matches/utils";
+import type { Tx } from "@/db/db";
+import {
+  leagueCheckpoints,
+  leagues,
+  matches,
+  playerStats,
+  playersToLeagues,
+} from "@/db/schema";
+import { env } from "@/env/server";
+import {
+  commandError,
+  commandSuccess,
+  defineCommand,
+  defineModelUpdateFunction,
+} from "@/lib/event-sourcing/lib";
+import { uuid } from "@/lib/utils";
+import { isAfter, subDays } from "date-fns";
+import { and, asc, eq, gt, isNotNull } from "drizzle-orm";
+
+export const editMatchCommand = defineCommand("editMatch", {
+  inputSchema: editMatchSchema,
+  runCommand: async (input, ctx) => {
+    const { tx, actorId } = ctx;
+    const {
+      matchId,
+      leagueId,
+      player1Id,
+      player2Id,
+      date,
+      winner,
+      description,
+    } = input;
+
+    // Check if match exists and belongs to the league
+    const existingMatch = await tx.query.matches.findFirst({
+      where: and(eq(matches.id, matchId), eq(matches.leagueId, leagueId)),
+      columns: {
+        id: true,
+        createdAt: true,
+        date: true,
+        player1Id: true,
+        player2Id: true,
+        winner: true,
+        description: true,
+      },
+    });
+
+    if (!existingMatch) {
+      return commandError(`Match not found: ${matchId}`);
+    }
+
+    // Check grace period
+    const gracePeriodDays = env.MATCH_EDITING_GRACE_PERIOD;
+    const gracePeriodEnd = subDays(new Date(), gracePeriodDays);
+
+    if (!isAfter(existingMatch.createdAt, gracePeriodEnd)) {
+      return commandError(
+        `Match cannot be edited. Grace period of ${gracePeriodDays.toString()} days has expired.`,
+      );
+    }
+
+    // Validate league exists and players are in league (similar to add-match)
+    const [leagueData, player1InLeague, player2InLeague] = await Promise.all([
+      tx.query.leagues.findFirst({
+        where: eq(leagues.id, leagueId),
+        columns: {
+          id: true,
+        },
+      }),
+      tx.query.playersToLeagues
+        .findFirst({
+          where: and(
+            eq(playersToLeagues.leagueId, leagueId),
+            eq(playersToLeagues.playerId, player1Id),
+          ),
+        })
+        .then((result) => !!result),
+      tx.query.playersToLeagues
+        .findFirst({
+          where: and(
+            eq(playersToLeagues.leagueId, leagueId),
+            eq(playersToLeagues.playerId, player2Id),
+          ),
+        })
+        .then((result) => !!result),
+    ]);
+
+    if (!leagueData) {
+      return commandError(`League not found: ${leagueId}`);
+    }
+
+    if (!player1InLeague) {
+      return commandError(
+        `Player 1 (${player1Id}) not found in league: ${leagueId}`,
+      );
+    }
+    if (!player2InLeague) {
+      return commandError(
+        `Player 2 (${player2Id}) not found in league: ${leagueId}`,
+      );
+    }
+
+    return commandSuccess([
+      {
+        type: "MatchEdited",
+        eventId: uuid(),
+        actorId,
+        aggregateId: matchId,
+        aggregateType: "match",
+        createdAt: new Date(),
+        data: {
+          matchId,
+          leagueId,
+          matchDate: date,
+          player1Id,
+          player2Id,
+          winnerId: winner,
+          description,
+          oldMatch: {
+            date: existingMatch.date,
+            player1Id: existingMatch.player1Id,
+            player2Id: existingMatch.player2Id,
+            winnerId: existingMatch.winner,
+            description: existingMatch.description,
+          },
+        },
+      },
+    ]);
+  },
+});
+
+defineModelUpdateFunction({
+  triggeringEvent: "MatchEdited",
+  updateFn: async (event, ctx) => {
+    const { tx } = ctx;
+    const {
+      matchId,
+      matchDate,
+      player1Id,
+      player2Id,
+      winnerId,
+      description,
+      leagueId,
+    } = event.data;
+
+    // Update the match in the database
+    await tx
+      .update(matches)
+      .set({
+        date: matchDate,
+        player1Id,
+        player2Id,
+        winner: winnerId,
+        description,
+        updatedAt: new Date(),
+      })
+      .where(eq(matches.id, matchId));
+
+    // Recalculate ELOs for all affected players
+    await recalculateElosFromCheckpoint(leagueId, tx);
+  },
+});
+
+async function recalculateElosFromCheckpoint(leagueId: string, tx: Tx) {
+  // Get the checkpoint for the league
+  const checkpoint = await tx.query.leagueCheckpoints.findFirst({
+    where: eq(leagueCheckpoints.leagueId, leagueId),
+  });
+
+  const checkpointMatch = !checkpoint
+    ? null
+    : await tx.query.matches.findFirst({
+        where: eq(matches.id, checkpoint.createdAtMatchId),
+      });
+
+  const checkpointEloMap = checkpoint?.eloMap
+    ? deserializeEloMap(checkpoint.eloMap)
+    : new Map<string, number>();
+
+  // Get all matches from checkpoint forward
+  const matchesToProcess = await tx.query.matches.findMany({
+    where: and(
+      checkpointMatch ? gt(matches.date, checkpointMatch.date) : undefined,
+      eq(matches.leagueId, leagueId),
+      isNotNull(matches.winner),
+    ),
+    orderBy: asc(matches.date),
+    columns: {
+      id: true,
+      player1Id: true,
+      player2Id: true,
+      player1Elo: true,
+      player2Elo: true,
+      winner: true,
+      date: true,
+    },
+  });
+
+  // Initialize current ELO map with checkpoint data
+  const currentEloMap = new Map(checkpointEloMap);
+
+  // Process each match and update ELOs
+  const playerUpdates = new Map<string, number>();
+
+  for (const match of matchesToProcess) {
+    const player1CurrentElo =
+      currentEloMap.get(match.player1Id) ?? match.player1Elo;
+    const player2CurrentElo =
+      currentEloMap.get(match.player2Id) ?? match.player2Elo;
+
+    const { player1NewElo, player2NewElo } = calculateNewElos({
+      player1Elo: player1CurrentElo,
+      player2Elo: player2CurrentElo,
+      player1Won: match.winner === match.player1Id,
+    });
+
+    // Update the ELO map
+    currentEloMap.set(match.player1Id, player1NewElo);
+    currentEloMap.set(match.player2Id, player2NewElo);
+
+    // Track which players need database updates
+    playerUpdates.set(match.player1Id, player1NewElo);
+    playerUpdates.set(match.player2Id, player2NewElo);
+  }
+
+  // Update player stats in the database concurrently
+  const updatePromises = Array.from(playerUpdates.entries()).map(
+    ([playerId, newElo]) =>
+      tx
+        .update(playerStats)
+        .set({ elo: newElo })
+        .where(
+          and(
+            eq(playerStats.playerId, playerId),
+            eq(playerStats.leagueId, leagueId),
+          ),
+        ),
+  );
+
+  await Promise.all(updatePromises);
+
+  // Note: We don't update wins/losses here as they would need to be completely recalculated
+  // This is a limitation that could be addressed in a future iteration
+}
