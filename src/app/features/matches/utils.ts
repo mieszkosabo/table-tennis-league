@@ -74,3 +74,151 @@ export const calculateNewElos = ({
     player2NewElo: Math.round(player2Elo - player2Change),
   };
 };
+
+export async function recalculateStatsFromCheckpoint(leagueId: string, tx: any) {
+  const { leagueCheckpoints, leagues, matches, playerStats, playersToLeagues } = await import("@/db/schema");
+  const { and, asc, eq, gt, isNotNull } = await import("drizzle-orm");
+
+  // Get the checkpoint for the league
+  const checkpoint = await tx.query.leagueCheckpoints.findFirst({
+    where: eq(leagueCheckpoints.leagueId, leagueId),
+  });
+
+  const checkpointMatch = !checkpoint
+    ? null
+    : await tx.query.matches.findFirst({
+        where: eq(matches.id, checkpoint.createdAtMatchId),
+      });
+
+  const checkpointPlayerStatsMap = checkpoint?.playerStatsMap
+    ? deserializePlayerStatsMap(checkpoint.playerStatsMap)
+    : createEmptyPlayerStatsMap();
+
+  // Get all matches from checkpoint forward
+  const matchesToProcess = await tx.query.matches.findMany({
+    where: and(
+      checkpointMatch ? gt(matches.date, checkpointMatch.date) : undefined,
+      eq(matches.leagueId, leagueId),
+      isNotNull(matches.winner),
+    ),
+    orderBy: asc(matches.date),
+    columns: {
+      id: true,
+      player1Id: true,
+      player2Id: true,
+      player1Elo: true,
+      player2Elo: true,
+      winner: true,
+      date: true,
+    },
+  });
+
+  // If there are no matches, reset all players to default stats
+  if (matchesToProcess.length === 0) {
+    // Get league's starting ELO
+    const league = await tx.query.leagues.findFirst({
+      where: eq(leagues.id, leagueId),
+      columns: {
+        startingElo: true,
+      },
+    });
+
+    if (!league) return; // League doesn't exist, nothing to update
+
+    // Get all players in the league
+    const playersInLeague = await tx.query.playersToLeagues.findMany({
+      where: eq(playersToLeagues.leagueId, leagueId),
+      columns: {
+        playerId: true,
+      },
+    });
+
+    // Reset all players' stats to default values
+    const resetPromises = playersInLeague.map(({ playerId }) =>
+      tx
+        .update(playerStats)
+        .set({
+          elo: league.startingElo,
+          wins: 0,
+          losses: 0,
+        })
+        .where(
+          and(
+            eq(playerStats.playerId, playerId),
+            eq(playerStats.leagueId, leagueId),
+          ),
+        ),
+    );
+
+    await Promise.all(resetPromises);
+    return;
+  }
+
+  // Initialize current player stats map with checkpoint data
+  const currentPlayerStatsMap = new Map(checkpointPlayerStatsMap);
+
+  // Process each match and update complete player stats
+  for (const match of matchesToProcess) {
+    const player1Stats = currentPlayerStatsMap.get(match.player1Id) || {
+      elo: match.player1Elo,
+      wins: 0,
+      losses: 0,
+    };
+    const player2Stats = currentPlayerStatsMap.get(match.player2Id) || {
+      elo: match.player2Elo,
+      wins: 0,
+      losses: 0,
+    };
+
+    const { player1NewElo, player2NewElo } = calculateNewElos({
+      player1Elo: player1Stats.elo,
+      player2Elo: player2Stats.elo,
+      player1Won: match.winner === match.player1Id,
+    });
+
+    // Update complete player stats
+    currentPlayerStatsMap.set(match.player1Id, {
+      elo: player1NewElo,
+      wins:
+        match.winner === match.player1Id
+          ? player1Stats.wins + 1
+          : player1Stats.wins,
+      losses:
+        match.winner === match.player2Id
+          ? player1Stats.losses + 1
+          : player1Stats.losses,
+    });
+
+    currentPlayerStatsMap.set(match.player2Id, {
+      elo: player2NewElo,
+      wins:
+        match.winner === match.player2Id
+          ? player2Stats.wins + 1
+          : player2Stats.wins,
+      losses:
+        match.winner === match.player1Id
+          ? player2Stats.losses + 1
+          : player2Stats.losses,
+    });
+  }
+
+  // Update player stats in the database concurrently
+  const updatePromises = Array.from(currentPlayerStatsMap.entries()).map(
+    ([playerId, stats]) =>
+      tx
+        .update(playerStats)
+        .set({
+          elo: stats.elo,
+          wins: stats.wins,
+          losses: stats.losses,
+        })
+        .where(
+          and(
+            eq(playerStats.playerId, playerId),
+            eq(playerStats.leagueId, leagueId),
+          ),
+        ),
+  );
+
+  await Promise.all(updatePromises);
+}

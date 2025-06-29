@@ -1,8 +1,9 @@
 "use server";
 
 import { addMatchCommand } from "@/app/features/matches/add-match";
+import { deleteMatchCommand } from "@/app/features/matches/delete-match";
 import { editMatchCommand } from "@/app/features/matches/edit-match";
-import { addMatchSchema, editMatchSchema } from "@/app/features/matches/schemas";
+import { addMatchSchema, deleteMatchSchema, editMatchSchema } from "@/app/features/matches/schemas";
 import { db } from "@/db/db";
 import { authActionClient } from "@/lib/actions/safe-action";
 import { startProcessingEvents } from "@/lib/event-sourcing/lib";
@@ -49,6 +50,29 @@ export const editMatch = authActionClient
     }
 
     const leagueId = result.events[0].data.leagueId;
+
+    revalidatePath(`/leagues/${leagueId}/matches`);
+    revalidatePath(`/leagues/${leagueId}/ranking`);
+  });
+
+export const deleteMatch = authActionClient
+  .schema(deleteMatchSchema)
+  .action(async ({ parsedInput, ctx: { user } }) => {
+    const result = await db.transaction(async (tx) =>
+      startProcessingEvents(
+        {
+          tx,
+          actorId: user.id,
+        },
+        (ctx) => deleteMatchCommand(parsedInput, ctx),
+      ),
+    );
+
+    if (result.type === "error") {
+      throw result.error;
+    }
+
+    const leagueId = parsedInput.leagueId;
 
     revalidatePath(`/leagues/${leagueId}/matches`);
     revalidatePath(`/leagues/${leagueId}/ranking`);

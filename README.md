@@ -68,7 +68,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [x] eslint typescript rules
 - [x] formatting with Biome
 - [x] "lock" more specific versions of dependencies
-- [ ] setup CI for PRs
+- [ ] setup CI for PRs (github actions running lint, type check, tests, etc)
   - [x] prod db migration
 - [x] setup for local development with docker
 - [x] open source
@@ -90,7 +90,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
   - [x] delete league (for now, only if there are no matches in it)
   - [x] remove player from league (for now, only if they didn't play any matches)
   - [x] add match to league
-  - [x] remove or edit match from league #EditingMatches 🐙
+  - [x] remove or edit match from league #EditingMatches
   - [ ] transfer ownership [just ui is needed, backend is done]
 - [ ] claim league ownership if owner is deleted
 - [x] add matches
@@ -140,7 +140,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
       - [x] `recordMatch`
       - [x] `scheduleMatch`
       - [x] `editMatch`
-      - [ ] `deleteMatch` 🐙
+      - [x] `deleteMatch`
       - [ ] `setMatchWinner` 🐙
     - Player
       - [ ] `updatePlayerDisplayName` 🐙

@@ -46,30 +46,35 @@ pnpm start        # Start production server
 ## Architecture
 
 ### Directory Structure
+
 - `/src/app/` - Next.js App Router pages and API routes
 - `/src/components/` - React components (UI components in `/ui/`)
 - `/src/db/` - Database schema and configuration
 - `/src/lib/` - Utilities and server actions
 - `/src/features/` - Feature-specific business logic
 - `/drizzle/` - Database migrations
+- `/ADRs/` - Architecture Decision Records / docs
 
 ### Key Patterns
 
 1. **Event Sourcing**: All mutations follow event sourcing pattern
+
    - Commands: `inputData -> state -> Either<Error, List<Event>>`
    - Events stored in database for audit trail
    - Checkpoint system for ELO calculations
 
 2. **Server Actions**: Type-safe mutations using next-safe-action
+
    - Located in `/src/lib/actions/`
    - Follow pattern: validate input → execute command → handle events
 
-3. **Database Schema**: 
+3. **Database Schema**:
    - Users, Leagues, Players, Matches tables
    - Event sourcing tables for audit trail
    - Drizzle ORM for type-safe queries
 
 ### Authentication
+
 - NextAuth configuration in `/src/app/api/auth/[...nextauth]/route.ts`
 - Providers: GitHub, Google, and development credentials
 - Session management with JWT strategy
@@ -85,6 +90,7 @@ pnpm start        # Start production server
 ## Environment Setup
 
 Required environment variables:
+
 - `POSTGRES_URL` - Database connection string
 - `NEXTAUTH_URL` - NextAuth base URL
 - `NEXTAUTH_SECRET` - NextAuth secret
@@ -93,17 +99,20 @@ Required environment variables:
 ## Common Tasks
 
 ### Adding a New Feature
+
 1. Create feature logic in `/src/features/[feature-name]/`
 2. Add server actions in `/src/lib/actions/`
 3. Create UI components following existing patterns
 4. Update database schema if needed and generate migrations
 
 ### Modifying Database Schema
+
 1. Edit schema in `/src/db/schema/`
 2. Run `pnpm db:generate` to create migration
 3. Run `pnpm db:migrate` to apply changes
 
 ### Working with Events
+
 - All mutations create events stored in the database
 - Events follow naming convention: `[Entity][Action]Event`
 - Use event sourcing helpers in `/src/lib/event-sourcing/`

@@ -1,8 +1,9 @@
 "use client";
 
+import { DataTable } from "@/components/data-table/data-table";
+import { EditMatchDialog } from "@/components/edit-match-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/data-table/data-table";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,14 +17,15 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { env } from "@/env/client";
+import { deleteMatch } from "@/lib/actions/match";
 import { cn } from "@/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
-import { format, isFuture, isPast, isToday, isAfter, subDays } from "date-fns";
+import { format, isAfter, isFuture, isPast, isToday, subDays } from "date-fns";
 import { formatDistanceToNowStrict } from "date-fns";
-import { MoreHorizontal, Edit } from "lucide-react";
-import { env } from "@/env/client";
-import { EditMatchDialog } from "@/components/edit-match-dialog";
+import { Edit, MoreHorizontal, Trash } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export type MatchesData = {
   matchId: string;
@@ -36,7 +38,9 @@ export type MatchesData = {
   description?: string;
 };
 
-export const getColumns = (ctx: { leagueId: string }): ColumnDef<MatchesData>[] => [
+export const getColumns = (ctx: {
+  leagueId: string;
+}): ColumnDef<MatchesData>[] => [
   {
     accessorKey: "matchDate",
     header: "Match Date",
@@ -88,7 +92,9 @@ export const getColumns = (ctx: { leagueId: string }): ColumnDef<MatchesData>[] 
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => <MatchActions match={row.original} leagueId={ctx.leagueId} />,
+    cell: ({ row }) => (
+      <MatchActions match={row.original} leagueId={ctx.leagueId} />
+    ),
   },
 ];
 
@@ -115,11 +121,44 @@ const FormatPlayerName = ({
   </HStack>
 );
 
-const MatchActions = ({ match, leagueId }: { match: MatchesData; leagueId: string }) => {
+const MatchActions = ({
+  match,
+  leagueId,
+}: { match: MatchesData; leagueId: string }) => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const gracePeriodEnd = subDays(new Date(), env.NEXT_PUBLIC_MATCH_EDITING_GRACE_PERIOD);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const gracePeriodEnd = subDays(
+    new Date(),
+    env.NEXT_PUBLIC_MATCH_EDITING_GRACE_PERIOD,
+  );
   const canEdit = isAfter(match.createdAt, gracePeriodEnd);
   const isCompletedMatch = match.player1.isWinner || match.player2.isWinner;
+
+  const handleDeleteMatch = async () => {
+    const player1Name = match.player1.name;
+    const player2Name = match.player2.name;
+    const matchDate = format(match.matchDate, "PPP");
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete this match?\n\n${player1Name} vs ${player2Name}\n${matchDate}\n\nThis action cannot be undone.`,
+    );
+
+    if (!confirmed) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteMatch({
+        matchId: match.matchId,
+        leagueId,
+      });
+      toast.success("Match deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete match");
+      console.error("Delete match error:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <>
@@ -136,7 +175,9 @@ const MatchActions = ({ match, leagueId }: { match: MatchesData; leagueId: strin
               <TooltipTrigger asChild>
                 <DropdownMenuItem
                   disabled={!canEdit || !isCompletedMatch}
-                  onClick={() => setEditDialogOpen(true)}
+                  onClick={() => {
+                    setEditDialogOpen(true);
+                  }}
                 >
                   <Edit className="mr-2 h-4 w-4" />
                   Edit match
@@ -144,10 +185,27 @@ const MatchActions = ({ match, leagueId }: { match: MatchesData; leagueId: strin
               </TooltipTrigger>
               {(!canEdit || !isCompletedMatch) && (
                 <TooltipContent>
-                  {!isCompletedMatch 
+                  {!isCompletedMatch
                     ? "Can't edit scheduled matches"
-                    : `Can't edit matches older than ${env.NEXT_PUBLIC_MATCH_EDITING_GRACE_PERIOD} days`
-                  }
+                    : `Can't edit matches older than ${env.NEXT_PUBLIC_MATCH_EDITING_GRACE_PERIOD.toString()} days`}
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuItem
+                  disabled={!canEdit || isDeleting}
+                  onClick={handleDeleteMatch}
+                >
+                  <Trash className="mr-2 h-4 w-4" />
+                  {isDeleting ? "Deleting..." : "Delete match"}
+                </DropdownMenuItem>
+              </TooltipTrigger>
+              {!canEdit && (
+                <TooltipContent>
+                  {`Can't delete matches older than ${env.NEXT_PUBLIC_MATCH_EDITING_GRACE_PERIOD.toString()} days`}
                 </TooltipContent>
               )}
             </Tooltip>
