@@ -1,3 +1,13 @@
+import type { Tx } from "@/db/db";
+import {
+  leagueCheckpoints,
+  leagues,
+  matches,
+  playerStats,
+  playersToLeagues,
+} from "@/db/schema";
+import { and, asc, eq, gt, isNotNull } from "drizzle-orm";
+
 export const serializeMap = (map: Map<unknown, unknown>): string =>
   JSON.stringify(Object.fromEntries(map));
 
@@ -24,7 +34,9 @@ export const serializePlayerStatsMap = (map: PlayerStatsMap): string =>
 
 export const deserializePlayerStatsMap = (serialized: string): PlayerStatsMap =>
   new Map(
-    Object.entries(JSON.parse(serialized) as Record<string, PlayerStatsSnapshot>)
+    Object.entries(
+      JSON.parse(serialized) as Record<string, PlayerStatsSnapshot>,
+    ),
   );
 
 export const createEmptyPlayerStatsMap = (): PlayerStatsMap => new Map();
@@ -75,10 +87,7 @@ export const calculateNewElos = ({
   };
 };
 
-export async function recalculateStatsFromCheckpoint(leagueId: string, tx: any) {
-  const { leagueCheckpoints, leagues, matches, playerStats, playersToLeagues } = await import("@/db/schema");
-  const { and, asc, eq, gt, isNotNull } = await import("drizzle-orm");
-
+export async function recalculateStatsFromCheckpoint(leagueId: string, tx: Tx) {
   // Get the checkpoint for the league
   const checkpoint = await tx.query.leagueCheckpoints.findFirst({
     where: eq(leagueCheckpoints.leagueId, leagueId),
@@ -113,18 +122,17 @@ export async function recalculateStatsFromCheckpoint(leagueId: string, tx: any) 
     },
   });
 
+  // Get league's starting ELO
+  const league = await tx.query.leagues.findFirst({
+    where: eq(leagues.id, leagueId),
+    columns: {
+      startingElo: true,
+    },
+  });
+  if (!league) return; // League doesn't exist, nothing to update
+
   // If there are no matches, reset all players to default stats
   if (matchesToProcess.length === 0) {
-    // Get league's starting ELO
-    const league = await tx.query.leagues.findFirst({
-      where: eq(leagues.id, leagueId),
-      columns: {
-        startingElo: true,
-      },
-    });
-
-    if (!league) return; // League doesn't exist, nothing to update
-
     // Get all players in the league
     const playersInLeague = await tx.query.playersToLeagues.findMany({
       where: eq(playersToLeagues.leagueId, leagueId),
@@ -160,12 +168,12 @@ export async function recalculateStatsFromCheckpoint(leagueId: string, tx: any) 
   // Process each match and update complete player stats
   for (const match of matchesToProcess) {
     const player1Stats = currentPlayerStatsMap.get(match.player1Id) || {
-      elo: match.player1Elo,
+      elo: league.startingElo,
       wins: 0,
       losses: 0,
     };
     const player2Stats = currentPlayerStatsMap.get(match.player2Id) || {
-      elo: match.player2Elo,
+      elo: league.startingElo,
       wins: 0,
       losses: 0,
     };

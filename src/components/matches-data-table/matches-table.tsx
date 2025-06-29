@@ -66,7 +66,7 @@ async function getData({
       .where(and(eq(matches.leagueId, leagueId), isNull(matches.winner)))
       .leftJoin(player1Table, eq(matches.player1Id, player1Table.id))
       .leftJoin(player2Table, eq(matches.player2Id, player2Table.id))
-      .orderBy(desc(matches.createdAt))
+      .orderBy(desc(matches.date))
       .limit(DEFAULT_PAGE_SIZE)
       .offset(scheduledMatchesPageIndex * DEFAULT_PAGE_SIZE),
 
@@ -98,7 +98,7 @@ async function getData({
       .where(and(eq(matches.leagueId, leagueId), isNotNull(matches.winner)))
       .leftJoin(player1Table, eq(matches.player1Id, player1Table.id))
       .leftJoin(player2Table, eq(matches.player2Id, player2Table.id))
-      .orderBy(desc(matches.createdAt))
+      .orderBy(desc(matches.date))
       .limit(DEFAULT_PAGE_SIZE)
       .offset(pastMatchesPageIndex * DEFAULT_PAGE_SIZE),
   ]);

@@ -3,6 +3,7 @@ import {
   calculateNewElos,
   createEmptyPlayerStatsMap,
   deserializePlayerStatsMap,
+  recalculateStatsFromCheckpoint,
   serializePlayerStatsMap,
 } from "@/app/features/matches/utils";
 import {
@@ -21,7 +22,7 @@ import {
 } from "@/lib/event-sourcing/lib";
 import { uuid } from "@/lib/utils";
 import { isAfter, subDays } from "date-fns";
-import { and, asc, eq, gt, isNotNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, isNotNull, lt, or } from "drizzle-orm";
 
 export const addMatchCommand = defineCommand("addMatch", {
   inputSchema: addMatchSchema,
@@ -78,6 +79,14 @@ export const addMatchCommand = defineCommand("addMatch", {
       );
     }
 
+    // Check if match date is within grace period
+    const gracePeriodEnd = subDays(new Date(), env.MATCH_EDITING_GRACE_PERIOD);
+    if (!isAfter(date, gracePeriodEnd)) {
+      return commandError(
+        `Match date must be within ${env.MATCH_EDITING_GRACE_PERIOD.toString()} days from today`,
+      );
+    }
+
     if (winner) {
       return commandSuccess([
         {
@@ -126,35 +135,69 @@ defineModelUpdateFunction({
     const { player1Id, player2Id, winnerId, leagueId, matchDate, description } =
       event.data;
 
-    const [player1Elo, player2Elo] = await Promise.all([
-      tx.query.playerStats.findFirst({
-        where: and(
-          eq(playerStats.playerId, player1Id),
-          eq(playerStats.leagueId, leagueId),
-        ),
-        columns: {
-          elo: true,
-        },
-      }),
-      tx.query.playerStats.findFirst({
-        where: and(
-          eq(playerStats.playerId, player2Id),
-          eq(playerStats.leagueId, leagueId),
-        ),
-        columns: {
-          elo: true,
-        },
-      }),
-    ]);
+    // Get the league's starting ELO for fallback
+    const league = await tx.query.leagues.findFirst({
+      where: eq(leagues.id, leagueId),
+      columns: {
+        startingElo: true,
+      },
+    });
 
-    if (!player1Elo || !player2Elo) {
+    if (!league) {
       tx.rollback();
-      throw new Error("unreachable");
+      throw new Error("League not found");
     }
 
-    const player1OldElo = player1Elo.elo;
-    const player2OldElo = player2Elo.elo;
+    // Find the most recent match involving these players that occurred before this match date
+    const priorMatches = await tx.query.matches.findMany({
+      where: and(
+        eq(matches.leagueId, leagueId),
+        isNotNull(matches.winner),
+        // Match involving either player combination
+        or(
+          and(
+            eq(matches.player1Id, player1Id),
+            eq(matches.player2Id, player2Id),
+          ),
+          and(
+            eq(matches.player1Id, player2Id),
+            eq(matches.player2Id, player1Id),
+          ),
+        ),
+        // Before the current match date
+        lt(matches.date, matchDate),
+      ),
+      orderBy: desc(matches.date),
+      limit: 1,
+      columns: {
+        player1Id: true,
+        player2Id: true,
+        player1Elo: true,
+        player2Elo: true,
+      },
+    });
 
+    let player1OldElo: number;
+    let player2OldElo: number;
+
+    if (priorMatches.length > 0) {
+      const priorMatch = priorMatches[0];
+      // Check if players are in same order or swapped
+      if (priorMatch.player1Id === player1Id) {
+        player1OldElo = priorMatch.player1Elo;
+        player2OldElo = priorMatch.player2Elo;
+      } else {
+        // Players are swapped in the prior match
+        player1OldElo = priorMatch.player2Elo;
+        player2OldElo = priorMatch.player1Elo;
+      }
+    } else {
+      // No prior matches found, use league starting ELO
+      player1OldElo = league.startingElo;
+      player2OldElo = league.startingElo;
+    }
+
+    // Insert the match record
     await tx.insert(matches).values({
       date: matchDate,
       player1Id: player1Id,
@@ -169,53 +212,8 @@ defineModelUpdateFunction({
       player2Elo: player2OldElo,
     });
 
-    const { player1NewElo, player2NewElo } = calculateNewElos({
-      player1Elo: player1OldElo,
-      player2Elo: player2OldElo,
-      player1Won: winnerId === player1Id,
-    });
-
-    // update elos and stats
-    await Promise.all([
-      tx
-        .update(playerStats)
-        .set({
-          elo: player1NewElo,
-          wins:
-            player1NewElo > player1OldElo
-              ? sql`${playerStats.wins} + 1`
-              : sql`${playerStats.wins}`,
-          losses:
-            player1NewElo < player1OldElo
-              ? sql`${playerStats.losses} + 1`
-              : sql`${playerStats.losses}`,
-        })
-        .where(
-          and(
-            eq(playerStats.playerId, player1Id),
-            eq(playerStats.leagueId, leagueId),
-          ),
-        ),
-      tx
-        .update(playerStats)
-        .set({
-          elo: player2NewElo,
-          wins:
-            player2NewElo > player2OldElo
-              ? sql`${playerStats.wins} + 1`
-              : sql`${playerStats.wins}`,
-          losses:
-            player2NewElo < player2OldElo
-              ? sql`${playerStats.losses} + 1`
-              : sql`${playerStats.losses}`,
-        })
-        .where(
-          and(
-            eq(playerStats.playerId, player2Id),
-            eq(playerStats.leagueId, leagueId),
-          ),
-        ),
-    ]);
+    // Recalculate all stats from checkpoint to ensure correct chronological order
+    await recalculateStatsFromCheckpoint(leagueId, tx);
   },
 });
 

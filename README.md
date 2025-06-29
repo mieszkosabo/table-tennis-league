@@ -161,9 +161,11 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [x] make sure the /join page works for non-logged in users (i.e. they get redirected to the login page and then to the join page after and just not the home page)
 - [x] "Today" works both as a past date and a future date depending whether the match has set winner or not
 - [ ] server-side sorting
+- [ ] show pagination controls only if there is something to paginate
+- [ ] come up with a way so that no two matches in a league have the same date (for example add 1 millisecond to the date if there is already a match with that date, and for the current day records the match with the current time) 🐙
 
 ## Bugs
 
-- [ ] We should be able to add a new match for dates falling within GRACE_PERIOD and we need to recalculate stats after such match is inserted
+- [x] We should be able to add a new match for dates falling within GRACE_PERIOD and we need to recalculate stats after such match is inserted
 - [ ] When two leagues have the same name the league selector acts weird 🐙
 - [x] explicitly setting the match date for today doesn't work since the form thinks it in the future
